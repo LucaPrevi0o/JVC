@@ -3,9 +3,11 @@ package jvc;
 class Signal { //class representing a signal in the project
 
     private boolean[] data; //current value of the signal (array length represents number of bits)
+    private String name; //name of signal
 
     public boolean[] getData() { return this.data; } //return current data
     public int getDimension() { return this.data.length; } //return number of bits of the signal
+    public String getName() { return this.name; } //raturn signal name
 
     public Signal and(Signal otSignal) { //and operation (fails if data is not of same length)
 
@@ -34,5 +36,9 @@ class Signal { //class representing a signal in the project
         return this; //chaining
     }
 
-    Signal(boolean[] v) { this.data=v; } //constructor
+    Signal(String s, int v) { //constructor
+        
+        this.name=s; //name
+        this.data=(boolean[])java.lang.reflect.Array.newInstance(Boolean.TYPE, v); //length
+    }
 }
