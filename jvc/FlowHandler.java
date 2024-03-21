@@ -107,6 +107,7 @@ public class FlowHandler {
                             } else {
                                 
                                 notTarget.not();
+                                System.out.println("Applied not operation on signal "+notTarget.getName());
                                 index++;
                             }
                         } else if (tokens[index].equals("and")) {
@@ -119,6 +120,7 @@ public class FlowHandler {
                             } else {
                                 
                                 bTarget.and(aTarget);
+                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
                                 index++;
                             }
                         } else if (tokens[index].equals("or")) {
@@ -131,6 +133,7 @@ public class FlowHandler {
                             } else {
                                 
                                 bTarget.or(aTarget);
+                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
                                 index++;
                             }
                         } else if (tokens[index].equals("xor")) {
@@ -143,6 +146,7 @@ public class FlowHandler {
                             } else {
                                 
                                 bTarget.xor(aTarget);
+                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
                                 index++;
                             }
                         } else if (isBinary(tokens[index])) 
@@ -153,6 +157,9 @@ public class FlowHandler {
                                     if (tokens[a].charAt(a)=='0') newData[i]=false;
                                     else newData[a]=true;
                                 target.set(newData);
+                                System.out.print("Set signal "+target.getName()+" to data value ");
+                                for (int a=0; a<newData.length; a++) System.out.println(newData[a]);
+                                System.out.println();
                             }
                     }
                 }
