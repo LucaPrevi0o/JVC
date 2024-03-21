@@ -87,7 +87,10 @@ public class FlowHandler {
 
                         System.err.println("Operating on non-existing signal");
                         System.exit(1);
-                    } else System.out.println("Operating on signal "+target.getName());
+                    } else System.out.print("Operating on signal "+target.getName()+" with current status ");
+                    var data=target.getData();
+                    for (int a=0; a<data.length; a++) System.out.print(data[a] ? 1 : 0);
+                    System.out.println();
                     
                     if (!tokens[1].equals("<=")) {
 
@@ -99,68 +102,73 @@ public class FlowHandler {
 
                         if (tokens[index].equals("not")) {
 
-                            Signal notTarget=getByName(tokens[index+1]);
+                            Signal notTarget=getByName(tokens[index+1]).copy();
                             if (notTarget==null) {
 
                                 System.err.println("Not operation on not-defined signal");
                                 System.exit(1);
                             } else {
                                 
-                                notTarget.not();
-                                System.out.println("Applied not operation on signal "+notTarget.getName());
+                                target=notTarget.not();
+                                System.out.println("Applied not");
                                 index++;
                             }
                         } else if (tokens[index].equals("and")) {
 
-                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
-                            if (aTarget==null || bTarget==null) {
+                            Signal andTarget=getByName(tokens[index+1]).copy();
+                            if (andTarget==null) {
 
                                 System.err.println("And operation on not-defined signal");
                                 System.exit(1);
                             } else {
                                 
-                                bTarget.and(aTarget);
-                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
+                                target=andTarget.and(target);
+                                System.out.println("Applied and");
                                 index++;
                             }
                         } else if (tokens[index].equals("or")) {
 
-                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
-                            if (aTarget==null || bTarget==null) {
+                            Signal orTarget=getByName(tokens[index+1]).copy();
+                            if (orTarget==null) {
 
                                 System.err.println("Or operation on not-defined signal");
                                 System.exit(1);
                             } else {
                                 
-                                bTarget.or(aTarget);
-                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
+                                target=orTarget.or(target);
+                                System.out.println("Applied or");
                                 index++;
                             }
                         } else if (tokens[index].equals("xor")) {
 
-                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
-                            if (aTarget==null || bTarget==null) {
+                            Signal xorTarget=getByName(tokens[index+1]);
+                            if (xorTarget==null) {
 
                                 System.err.println("Xor operation on not-defined signal");
                                 System.exit(1);
                             } else {
                                 
-                                bTarget.xor(aTarget);
-                                System.out.println("Applied and operation on signals "+bTarget.getName()+", "+aTarget.getName());
+                                target=xorTarget.xor(target);
+                                System.out.println("Applied xor");
                                 index++;
                             }
-                        } else if (isBinary(tokens[index])) 
-                            for (int i=0; i<tokens[i].length(); i++) {
+                        } else if (isBinary(tokens[index])) {
 
-                                boolean[] newData=new boolean[tokens[i].length()];
-                                for (int a=0; a<newData.length; a++)
-                                    if (tokens[a].charAt(a)=='0') newData[i]=false;
-                                    else newData[a]=true;
-                                target.set(newData);
-                                System.out.print("Set signal "+target.getName()+" to data value ");
-                                for (int a=0; a<newData.length; a++) System.out.println(newData[a]);
-                                System.out.println();
-                            }
+                            System.out.println("Found valid data "+tokens[index]+" of length "+tokens[index].length());
+                            boolean[] newData=new boolean[tokens[index].length()];
+                            for (int a=0; a<newData.length; a++)
+                                if (tokens[index].charAt(a)=='0') newData[a]=false;
+                                else newData[a]=true;
+                            target.set(newData);
+                            data=target.getData();
+                            System.out.print("Applied data: ");
+                            for (int a=0; a<data.length; a++) System.out.print(data[a] ? 1 : 0);
+                            System.out.println();
+                        } else continue;
+
+                        data=target.getData();
+                        for (int a=0; a<data.length; a++) System.out.print(data[a] ? 1 : 0);
+                        System.out.println();
                     }
                 }
             }
