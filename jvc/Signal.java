@@ -36,9 +36,24 @@ class Signal { //class representing a signal in the project
         return this; //chaining
     }
 
+    public Signal copy() {
+
+        Signal s=new Signal(this.name, this.data.length);
+        for (int i=0; i<this.data.length; i++) s.data[i]=this.data[i];
+        return s;
+    }
+
+    public Signal set(boolean[] val) {
+
+        if (val.length!=this.data.length) throw new ArrayStoreException();
+        else for (int i=0; i<this.data.length; i++) this.data[i]=val[i];
+        return this; //chaining
+    }
+
     Signal(String s, int v) { //constructor
         
         this.name=s; //name
         this.data=(boolean[])java.lang.reflect.Array.newInstance(Boolean.TYPE, v); //length
+        for (int i=0; i<this.data.length; i++) this.data[i]=false; //default value
     }
 }

@@ -14,6 +14,20 @@ public class FlowHandler {
         return true;
     }
 
+    private static boolean isBinary(String s) {
+
+        if (!isNumber(s)) return false;
+        for (int a=0; a<s.length(); a++) if (s.charAt(a)!='0' && s.charAt(a)!='1') return false;
+        return true;
+    }
+
+    private Signal getByName(String name) {
+
+        for (Signal s: signals)
+            if (s.getName().equals(name)) return s;
+        return null;
+    }
+
     public void run(String fileName) {
 
         try (var reader=new BufferedReader(new FileReader(fileName))) {
@@ -68,23 +82,78 @@ public class FlowHandler {
                     }
                 } else {
                     
-                    Signal target=null;
-                    for (Signal s: signals) if (s.getName().equals(tokens[0])) {
-                        
-                        System.out.println("Operating on signal "+tokens[0]);
-                        target=s;
-                    }
-
+                    Signal target=getByName(tokens[0]);
                     if (target==null) {
 
                         System.err.println("Operating on non-existing signal");
                         System.exit(1);
-                    }
-
+                    } else System.out.println("Operating on signal "+target.getName());
+                    
                     if (!tokens[1].equals("<=")) {
 
                         System.err.println("Wrong assignment operator");
                         System.exit(1);
+                    }
+
+                    for (int index=2; index<tokens.length; index++) {
+
+                        if (tokens[index].equals("not")) {
+
+                            Signal notTarget=getByName(tokens[index+1]);
+                            if (notTarget==null) {
+
+                                System.err.println("Not operation on not-defined signal");
+                                System.exit(1);
+                            } else {
+                                
+                                notTarget.not();
+                                index++;
+                            }
+                        } else if (tokens[index].equals("and")) {
+
+                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
+                            if (aTarget==null || bTarget==null) {
+
+                                System.err.println("And operation on not-defined signal");
+                                System.exit(1);
+                            } else {
+                                
+                                bTarget.and(aTarget);
+                                index++;
+                            }
+                        } else if (tokens[index].equals("or")) {
+
+                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
+                            if (aTarget==null || bTarget==null) {
+
+                                System.err.println("Or operation on not-defined signal");
+                                System.exit(1);
+                            } else {
+                                
+                                bTarget.or(aTarget);
+                                index++;
+                            }
+                        } else if (tokens[index].equals("xor")) {
+
+                            Signal aTarget=getByName(tokens[index-1]), bTarget=getByName(tokens[index-1]);
+                            if (aTarget==null || bTarget==null) {
+
+                                System.err.println("Xor operation on not-defined signal");
+                                System.exit(1);
+                            } else {
+                                
+                                bTarget.xor(aTarget);
+                                index++;
+                            }
+                        } else if (isBinary(tokens[index])) 
+                            for (int i=0; i<tokens[i].length(); i++) {
+
+                                boolean[] newData=new boolean[tokens[i].length()];
+                                for (int a=0; a<newData.length; a++)
+                                    if (tokens[a].charAt(a)=='0') newData[i]=false;
+                                    else newData[a]=true;
+                                target.set(newData);
+                            }
                     }
                 }
             }
