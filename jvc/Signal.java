@@ -30,6 +30,26 @@ class Signal { //class representing a signal in the project
         return this; //chaining
     }
 
+    public Signal nand(Signal otSignal) { //and operation (fails if data is not of same length)
+
+        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
+        for (int i=0; i<this.data.length; i++) this.data[i]=!(this.data[i]|otSignal.data[i]);
+        return this; //chaining
+    }
+
+    public Signal nor(Signal otSignal) { //or operation (fails if data is not of same length)
+
+        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
+        for (int i=0; i<this.data.length; i++) this.data[i]=!(this.data[i]&otSignal.data[i]);
+        return this; //chaining
+    }
+
+    public Signal xnor(Signal otSignal) { //xor operation (fails if data is not of same length)
+
+        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
+        return this.xor(otSignal).not(); //chaining and calculation
+    }
+
     public Signal not() { //not operation (unary)
 
         for (int i=0; i<this.data.length; i++) this.data[i]=!this.data[i];
