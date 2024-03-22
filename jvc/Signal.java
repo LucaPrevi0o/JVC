@@ -39,7 +39,7 @@ class Signal { //class representing a signal in the project
     public Signal copy() {
 
         Signal s=new Signal(this.name, this.data.length);
-        for (int i=0; i<this.data.length; i++) s.data[i]=this.data[i];
+        s.set(this.data);
         return s;
     }
 
@@ -48,6 +48,13 @@ class Signal { //class representing a signal in the project
         if (val.length!=this.data.length) throw new ArrayStoreException();
         else for (int i=0; i<this.data.length; i++) this.data[i]=val[i];
         return this; //chaining
+    }
+
+    public String toString() {
+
+        String s="Signal \""+this.name+"\": ";
+        for (int a=0; a<this.data.length; a++) s+=(this.data[a] ? 1 : 0);
+        return s;
     }
 
     Signal(String s, int v) { //constructor
