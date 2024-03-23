@@ -29,8 +29,9 @@ public class FileParser {
 
     private static boolean isOperator(String token) {
 
-        return (token.equals("and") || token.equals("or") || token.equals("xor")
-            || token.equals("nand") || token.equals("nor") || token.equals("xnor"));
+        return (token.equals("not") || token.equals("and") || token.equals("or")
+            || token.equals("xor") || token.equals("nand") || token.equals("nor")
+            || token.equals("xnor") || isBinary(token));
     }
 
     private static Signal getByName(String name) {
@@ -69,33 +70,20 @@ public class FileParser {
 
     private static void parseTokens(String[] tokens, Signal target, int timeStamp) {
 
-        for (var a=2; a<tokens.length; a++) {
+        var opPos=new ArrayList<Integer>();
+        for (var a=0; a<tokens.length; a++)
+            if (isOperator(tokens[a])) opPos.add(a);
 
-            if (tokens[a].equals("not")) {
+        var lastTarget=target;
+        for (var a: opPos) {
 
-                var source=getByName(tokens[a+1]);
-                if (source==null) {
-
-                    System.err.println("not operation on not declared signal");
-                    System.exit(1);
-                } else events.add(new Event(source, null, target, tokens[a], timeStamp));
-            } else if (isOperator(tokens[a])) {
-
-                var s1=getByName(tokens[a-1]);
-                var s2=getByName(tokens[a+1]);
-                if (s1==null || s2==null) {
-
-                    System.err.println(tokens[a]+" operation on not declared signal");
-                    System.exit(1);
-                } else events.add(new Event(s1, s2, target, tokens[a], (events.size()==0 ? 0 : events.getLast().getTime())+timeStamp));
-            } else if (isBinary(tokens[a])) {
-
-                if (a!=2) {
-
-                    System.err.println("Error on direct assignment");
-                    System.exit(1);
-                } else events.add(new Event(null, null, target, tokens[a], timeStamp));
-            }
+            var newTarget=(a.equals(opPos.getLast()) ? target : new Signal("newTarget", target.getDimension()));
+            var newSource=new Signal[2];
+            newSource[0]=(a.equals(opPos.getFirst()) ? getByName(tokens[a-1]) : lastTarget);
+            newSource[1]=getByName(tokens[a+1]);
+            if (a.equals(opPos.getFirst()) && events.size()>0) timeStamp+=events.getLast().getTime();
+            events.add(new Event(newSource[0], newSource[1], newTarget, tokens[a], timeStamp));
+            lastTarget=newTarget;
         }
     }
 

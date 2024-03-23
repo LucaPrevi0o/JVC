@@ -17,9 +17,16 @@ public class Event {
         return res;
     }
 
+    public void setTarget(Signal t) { this.target=t; }
+    public void setSources(Signal[] s) {
+
+        this.source1=s[0];
+        this.source2=s[1];
+    }
+
     public void operation() {
 
-        if (token.equals("not")) target.set(Signal.not(source1).getData());
+        if (token.equals("not")) target.set(Signal.not(source2).getData());
         if (token.equals("and")) target.set(Signal.and(source1, source2).getData());
         if (token.equals("or")) target.set(Signal.or(source1, source2).getData());
         if (token.equals("xor")) target.set(Signal.xor(source1, source2).getData());
