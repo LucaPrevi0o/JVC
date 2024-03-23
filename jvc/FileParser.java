@@ -45,7 +45,12 @@ public class FileParser {
 
                 System.err.println("Expected separator between declarations");
                 System.exit(1);
-            } else signals.add(new Signal(s, bitSize));
+            } else {
+                
+                if (s.endsWith(",")) s=s.substring(0, s.length()-1);
+                else if (s.startsWith(",")) s=s.substring(1);
+                signals.add(new Signal(s, bitSize));
+            }
         }
     }
 
@@ -66,7 +71,7 @@ public class FileParser {
 
                     System.err.println("Expected line ending identifier");
                     System.exit(1);
-                } else line.substring(0, line.length()-1);
+                } else line=line.substring(0, line.length()-1);
 
                 var tokens=line.split(" "); //split tokens every ' '
                 for (var s: tokens) System.out.println(s);

@@ -32,7 +32,7 @@ public class Event {
     public String toString() {
 
         return "New Event(timestamp "+time+"):\nTarget is "+target.toString()+
-            "\nSource is ("+(source1==null ? "null" : source1.toString())+" - "+(source2==null ? "null" : source2.toString());
-
+            "\nSource is ("+(source1==null ? "null" : source1.toString())+" - "+(source2==null ? "null" : source2.toString())+
+            ")\nOperation is: "+token+"\n";
     }
 }
