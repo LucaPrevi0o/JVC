@@ -4,50 +4,68 @@ class Signal { //class representing a signal in the project
 
     private boolean[] data; //current value of the signal (array length represents number of bits)
     private String name; //name of signal
+    private Signal() {
+
+        this.name="";
+        this.data=null;
+    }
 
     public boolean[] getData() { return this.data; } //return current data
     public int getDimension() { return this.data.length; } //return number of bits of the signal
     public String getName() { return this.name; } //raturn signal name
 
-    public Signal and(Signal otSignal) { //and operation (fails if data is not of same length)
+    public static Signal and(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        for (int i=0; i<this.data.length; i++) this.data[i]&=otSignal.data[i];
-        return this; //chaining
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=s1.data[a]&s2.data[a];
+        return newS.set(data);
     }
 
-    public Signal or(Signal otSignal) { //or operation (fails if data is not of same length)
+    public static Signal or(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        for (int i=0; i<this.data.length; i++) this.data[i]|=otSignal.data[i];
-        return this; //chaining
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=s1.data[a]|s2.data[a];
+        return newS.set(data);
     }
 
-    public Signal xor(Signal otSignal) { //xor operation (fails if data is not of same length)
+    public static Signal xor(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        for (int i=0; i<this.data.length; i++) this.data[i]^=otSignal.data[i];
-        return this; //chaining
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=s1.data[a]^s2.data[a];
+        return newS.set(data);
     }
 
-    public Signal nand(Signal otSignal) { //and operation (fails if data is not of same length)
+    public static Signal nand(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        for (int i=0; i<this.data.length; i++) this.data[i]=!(this.data[i]|otSignal.data[i]);
-        return this; //chaining
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
+        return newS.set(data);
     }
 
-    public Signal nor(Signal otSignal) { //or operation (fails if data is not of same length)
+    public static Signal nor(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        for (int i=0; i<this.data.length; i++) this.data[i]=!(this.data[i]&otSignal.data[i]);
-        return this; //chaining
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
+        return newS.set(data);
     }
 
-    public Signal xnor(Signal otSignal) { //xor operation (fails if data is not of same length)
+    public static Signal xnor(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
-        if (this.data.length!=otSignal.data.length) throw new ArrayStoreException();
-        return this.xor(otSignal).not(); //chaining and calculation
+        if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
+        Signal newS=new Signal();
+        boolean data[]=new boolean[s1.data.length];
+        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]^s2.data[a]);
+        return newS.set(data);
     }
 
     public Signal not() { //not operation (unary)
@@ -80,7 +98,7 @@ class Signal { //class representing a signal in the project
     Signal(String s, int v) { //constructor
         
         this.name=s; //name
-        this.data=(boolean[])java.lang.reflect.Array.newInstance(Boolean.TYPE, v); //length
+        this.data=new boolean[v]; //length
         for (int i=0; i<this.data.length; i++) this.data[i]=false; //default value
     }
 }

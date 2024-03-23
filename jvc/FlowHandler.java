@@ -2,11 +2,6 @@ package jvc;
 import java.io.*;
 import java.util.*;
 
-//errore - determinare storage di ottenimento del riferimento nell'ArrayList
-//  -cambiare ArrayList con un oggetto dizionario di elementi ottenibili per attributo
-//  -capire come ottenere elemento ArrayList per attributo
-//      -determinato il modo, update valore in ArrayList invece 
-
 public class FlowHandler {
     
     private ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the flow
