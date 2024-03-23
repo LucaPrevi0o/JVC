@@ -4,8 +4,8 @@ import java.util.*;
 
 public class FileParser {
     
-    private ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the project
-    private ArrayList<Event> events=new ArrayList<Event>(); //list of events in the dataflow
+    private static ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the project
+    private static ArrayList<Event> events=new ArrayList<Event>(); //list of events in the dataflow
 
     private static boolean isNumber(String s) {
 
@@ -17,8 +17,10 @@ public class FileParser {
 
     public static boolean isBinary(String s) {
 
-        if (!isNumber(s)) return false;
-        for (var a=0; a<s.length(); a++) if (s.charAt(a)!='0' && s.charAt(a)!='1') return false;
+        if (!s.startsWith("\"") || !s.endsWith("\"")) return false;
+        var s1=s.substring(1, s.length()-1);
+        if (!isNumber(s1)) return false;
+        for (var a=0; a<s1.length(); a++) if (s1.charAt(a)!='0' && s1.charAt(a)!='1') return false;
         return true;
     }
 
@@ -29,14 +31,14 @@ public class FileParser {
         return false;
     }
 
-    private Signal getByName(String name) {
+    private static Signal getByName(String name) {
 
         for (var s: signals)
             if (s.getName().equals(name)) return s;
         return null;
     }
 
-    private void declare(String[] tokens, int bitSize) { 
+    private static void declare(String[] tokens, int bitSize) { 
 
         for (var a=1; a<tokens.length-2; a++) {
 
@@ -54,7 +56,49 @@ public class FileParser {
         }
     }
 
-    public void parse(String fileName) {
+    private static String[] tokenize(String line) {
+
+        if (!line.endsWith(";")) { //every line ends with ';' char
+
+            System.err.println("Expected line ending identifier");
+            System.exit(1);
+        } else line=line.substring(0, line.length()-1);
+        return line.split(" "); //split tokens every ' '
+    }
+
+    private static void parseTokens(String[] tokens, Signal target, int timeStamp) {
+
+        for (var a=2; a<tokens.length; a++) {
+
+            if (tokens[a].equals("not")) {
+
+                var source=getByName(tokens[a+1]);
+                if (source==null) {
+
+                    System.err.println("not operation on not declared signal");
+                    System.exit(1);
+                } else events.add(new Event(source, null, target, tokens[a], timeStamp));
+            } else if (isOperator(tokens[a])) {
+
+                var s1=getByName(tokens[a-1]);
+                var s2=getByName(tokens[a+1]);
+                if (s1==null || s2==null) {
+
+                    System.err.println(tokens[a]+" operation on not declared signal");
+                    System.exit(1);
+                } else events.add(new Event(s1, s2, target, tokens[a], events.getLast().getTime()+timeStamp));
+            } else if (isBinary(tokens[a])) {
+
+                if (a!=2) {
+
+                    System.err.println("Error on direct assignment");
+                    System.exit(1);
+                } else events.add(new Event(null, null, target, tokens[a], timeStamp));
+            }
+        }
+    }
+
+    public static void parse(String fileName) {
 
         try (var reader=new BufferedReader(new FileReader(fileName))) {
 
@@ -67,21 +111,16 @@ public class FileParser {
                     System.out.println("Finished");
                     System.exit(0);
                 } else if (line.equals("")) continue;
-                else if (!line.endsWith(";")) { //every line ends with ';' char
-
-                    System.err.println("Expected line ending identifier");
-                    System.exit(1);
-                } else line=line.substring(0, line.length()-1);
-
-                var tokens=line.split(" "); //split tokens every ' '
+                var tokens=tokenize(line);
                 for (var s: tokens) System.out.println(s);
 
                 var firstToken=tokens[0];
-                var bitSize=tokens[tokens.length-1];
+                var idToken=tokens[tokens.length-2];
                 if (firstToken.equals("signal")) {
 
                     System.out.println("Found signal declaration");
-                    if (!tokens[tokens.length-2].equals(":")) {
+                    var bitSize=tokens[tokens.length-1];
+                    if (!idToken.equals(":")) {
 
                         System.err.println("Expected bit size identifier");
                         System.exit(1);
@@ -93,42 +132,25 @@ public class FileParser {
                 } else {
 
                     var target=getByName(firstToken);
+                    var opToken=tokens[1];
+                    var lastToken=tokens[tokens.length-1];
                     if (target==null) {
 
-                        System.err.println("Assignment error with not declared signal");
+                        System.err.println("Operation with not declared signal");
                         System.exit(1);
-                    } else if (!tokens[1].equals("<=")) {
+                    } else if (!opToken.equals("<=")) {
 
-                        System.err.println("Expected assignment identifier");
+                        System.err.println("Expected operation identifier");
                         System.exit(1);
-                    } else for (var a=2; a<tokens.length; a++) {
+                    } else if (!isBinary(lastToken) && !idToken.equals("after")) {
+                        
+                        System.err.println("Expected delay identifier");
+                        System.exit(1);
+                    } else if (!isBinary(lastToken) && !isNumber(lastToken)) {
 
-                        if (tokens[a].equals("not")) {
-
-                            var source=getByName(tokens[a+1]);
-                            if (source==null) {
-
-                                System.err.println("not operation on not declared signal");
-                                System.exit(1);
-                            } else events.add(new Event(source, null, target, tokens[a], 0));
-                        } else if (isOperator(tokens[a])) {
-
-                            var s1=getByName(tokens[a-1]);
-                            var s2=getByName(tokens[a+1]);
-                            if (s1==null || s2==null) {
-
-                                System.err.println(tokens[a]+" operation on not declared signal");
-                                System.exit(1);
-                            } else events.add(new Event(s1, s2, target, tokens[a], 0));
-                        } else if (isBinary(tokens[a])) {
-
-                            if (a!=2) {
-
-                                System.err.println("Error on direct assignment");
-                                System.exit(1);
-                            } else events.add(new Event(null, null, target, tokens[a], 0));
-                        }
-                    }
+                        System.err.println("Expected delay after operation");
+                        System.exit(1);
+                    } else parseTokens(tokens, target, (isBinary(lastToken) ? 0 : Integer.parseInt(lastToken)));
                 }
 
                 System.out.println("\nCurrently declared "+signals.size()+" signals");
@@ -142,6 +164,4 @@ public class FileParser {
             System.exit(1);
         }
     }
-
-    public FileParser() {}
 }
