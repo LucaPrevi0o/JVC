@@ -7,6 +7,9 @@ public class FileParser {
     private static ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the project
     private static ArrayList<Event> events=new ArrayList<Event>(); //list of events in the dataflow
 
+    public static ArrayList<Event> getEvents() { return events; }
+    public static ArrayList<Signal> getSignals() { return signals; }
+
     private static boolean isNumber(String s) {
 
         if (s==null) return false;
@@ -109,7 +112,7 @@ public class FileParser {
                 if (line==null) {
 
                     System.out.println("Finished");
-                    System.exit(0);
+                    break;
                 } else if (line.equals("")) continue;
                 var tokens=tokenize(line);
                 for (var s: tokens) System.out.println(s);
@@ -142,15 +145,15 @@ public class FileParser {
 
                         System.err.println("Expected operation identifier");
                         System.exit(1);
-                    } else if (!isBinary(lastToken) && !idToken.equals("after")) {
+                    } else if (!idToken.equals("after")) {
                         
                         System.err.println("Expected delay identifier");
                         System.exit(1);
-                    } else if (!isBinary(lastToken) && !isNumber(lastToken)) {
+                    } else if (!isNumber(lastToken)) {
 
                         System.err.println("Expected delay after operation");
                         System.exit(1);
-                    } else parseTokens(tokens, target, (isBinary(lastToken) ? 0 : Integer.parseInt(lastToken)));
+                    } else parseTokens(tokens, target, Integer.parseInt(lastToken));
                 }
 
                 System.out.println("\nCurrently declared "+signals.size()+" signals");

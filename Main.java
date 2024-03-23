@@ -8,6 +8,10 @@ public class Main {
 
             System.err.println("File name expected");
             System.exit(1);
-        } else FileParser.parse(args[0]);
+        } else {
+            
+            FileParser.parse(args[0]);
+            Runner.run();
+        }
     }
 }

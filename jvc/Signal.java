@@ -4,10 +4,10 @@ class Signal { //class representing a signal in the project
 
     private boolean[] data; //current value of the signal (array length represents number of bits)
     private String name; //name of signal
-    private Signal() {
+    private Signal(int d) {
 
         this.name="";
-        this.data=null;
+        this.data=new boolean[d];
     }
 
     public boolean[] getData() { return this.data; } //return current data
@@ -17,8 +17,8 @@ class Signal { //class representing a signal in the project
     public static Signal and(Signal s1, Signal s2) { //and operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=s1.data[a]&s2.data[a];
         return newS.set(data);
     }
@@ -26,8 +26,8 @@ class Signal { //class representing a signal in the project
     public static Signal or(Signal s1, Signal s2) { //or operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=s1.data[a]|s2.data[a];
         return newS.set(data);
     }
@@ -35,8 +35,8 @@ class Signal { //class representing a signal in the project
     public static Signal xor(Signal s1, Signal s2) { //xor operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=s1.data[a]^s2.data[a];
         return newS.set(data);
     }
@@ -44,8 +44,8 @@ class Signal { //class representing a signal in the project
     public static Signal nand(Signal s1, Signal s2) { //nand operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
         return newS.set(data);
     }
@@ -53,8 +53,8 @@ class Signal { //class representing a signal in the project
     public static Signal nor(Signal s1, Signal s2) { //nor operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
         return newS.set(data);
     }
@@ -62,16 +62,16 @@ class Signal { //class representing a signal in the project
     public static Signal xnor(Signal s1, Signal s2) { //xnor operation (fails if data is not of same length)
 
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
-        Signal newS=new Signal();
-        boolean data[]=new boolean[s1.data.length];
+        var newS=new Signal(s2.data.length);
+        var data=new boolean[s1.data.length];
         for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]^s2.data[a]);
         return newS.set(data);
     }
 
     public static Signal not(Signal s) { //not operation (unary)
 
-        Signal r=new Signal();
-        boolean data[]=new boolean[s.data.length];
+        Signal r=new Signal(s.data.length);
+        var data=new boolean[s.data.length];
         for (int i=0; i<r.data.length; i++) data[i]=!r.data[i];
         return r.set(data);
     }
@@ -79,8 +79,9 @@ class Signal { //class representing a signal in the project
     public static Signal assign(String val) {
 
         if (!FileParser.isBinary(val)) throw new ArrayIndexOutOfBoundsException();
-        Signal s=new Signal();
-        boolean data[]=new boolean[val.length()];
+        val=val.substring(1, val.length()-1);
+        var s=new Signal(val.length());
+        var data=new boolean[val.length()];
         for (var a=0; a<data.length; a++) data[a]=(val.charAt(a)=='1');
         return s.set(data);
     }

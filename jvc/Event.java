@@ -7,6 +7,7 @@ public class Event {
     private int time;
     
     public int getTime() { return this.time; }
+    public Signal getTarget() { return this.target; }
 
     public void operation() {
 
