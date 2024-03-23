@@ -29,15 +29,13 @@ public class FileParser {
 
     private static boolean isOperator(String token) {
 
-        if (token.equals("and") || token.equals("or") || token.equals("xor")
-            || token.equals("nand") || token.equals("nor") || token.equals("xnor")) return true;
-        return false;
+        return (token.equals("and") || token.equals("or") || token.equals("xor")
+            || token.equals("nand") || token.equals("nor") || token.equals("xnor"));
     }
 
     private static Signal getByName(String name) {
 
-        for (var s: signals)
-            if (s.getName().equals(name)) return s;
+        for (var s: signals) if (s.getName().equals(name)) return s;
         return null;
     }
 
@@ -89,7 +87,7 @@ public class FileParser {
 
                     System.err.println(tokens[a]+" operation on not declared signal");
                     System.exit(1);
-                } else events.add(new Event(s1, s2, target, tokens[a], events.getLast().getTime()+timeStamp));
+                } else events.add(new Event(s1, s2, target, tokens[a], (events.size()==0 ? 0 : events.getLast().getTime())+timeStamp));
             } else if (isBinary(tokens[a])) {
 
                 if (a!=2) {

@@ -6,15 +6,15 @@ public class Runner {
 
         var events=FileParser.getEvents();
         var signals=FileParser.getSignals();
-        System.out.println("Starting run operation");
+        System.out.println("\n--- --- ---\n\nStarting run operation\n");
         for (var e: events) {
 
             e.operation();
-            System.out.println("Event @"+e.getTime()+":");
-            System.out.println(e.getTarget());
+            System.out.println("Time: "+e.getTime());
+            for (var t: signals) System.out.println(t);
+            System.out.println();
         }
 
-        System.out.println();
-        for (var s: signals) System.out.println(s);
+        System.out.println("--- --- ---");
     }
 }

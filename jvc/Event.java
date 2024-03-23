@@ -8,6 +8,14 @@ public class Event {
     
     public int getTime() { return this.time; }
     public Signal getTarget() { return this.target; }
+    public String getToken() { return this.token; }
+    public Signal[] getSources() {
+
+        var res=new Signal[2];
+        res[0]=source1;
+        res[1]=source2;
+        return res;
+    }
 
     public void operation() {
 

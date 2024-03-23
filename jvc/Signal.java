@@ -70,20 +70,20 @@ class Signal { //class representing a signal in the project
 
     public static Signal not(Signal s) { //not operation (unary)
 
-        Signal r=new Signal(s.data.length);
+        var newS=new Signal(s.data.length);
         var data=new boolean[s.data.length];
-        for (int i=0; i<r.data.length; i++) data[i]=!r.data[i];
-        return r.set(data);
+        for (int a=0; a<data.length; a++) data[a]=!(s.data[a]);
+        return newS.set(data);
     }
 
     public static Signal assign(String val) {
 
         if (!FileParser.isBinary(val)) throw new ArrayIndexOutOfBoundsException();
         val=val.substring(1, val.length()-1);
-        var s=new Signal(val.length());
+        var newS=new Signal(val.length());
         var data=new boolean[val.length()];
         for (var a=0; a<data.length; a++) data[a]=(val.charAt(a)=='1');
-        return s.set(data);
+        return newS.set(data);
     }
 
     public Signal set(boolean[] val) {
@@ -107,7 +107,7 @@ class Signal { //class representing a signal in the project
         return s;
     }
 
-    Signal(String s, int v) { //constructor
+    public Signal(String s, int v) { //constructor
         
         this.name=s; //name
         this.data=new boolean[v]; //length
