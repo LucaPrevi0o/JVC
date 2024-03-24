@@ -95,19 +95,14 @@ public class FileParser {
             while (line!=null) {
                 
                 line=reader.readLine(); //read new line from file
-                if (line==null) {
-
-                    System.out.println("Finished");
-                    break;
-                } else if (line.equals("")) continue;
+                if (line==null) break;
+                else if (line.equals("")) continue;
                 var tokens=tokenize(line);
-                for (var s: tokens) System.out.println(s);
 
                 var firstToken=tokens[0];
                 var idToken=tokens[tokens.length-2];
                 if (firstToken.equals("signal")) {
 
-                    System.out.println("Found signal declaration");
                     var bitSize=tokens[tokens.length-1];
                     if (!idToken.equals(":")) {
 
@@ -141,11 +136,6 @@ public class FileParser {
                         System.exit(1);
                     } else parseTokens(tokens, target, Integer.parseInt(lastToken));
                 }
-
-                System.out.println("\nCurrently declared "+signals.size()+" signals");
-                for (var s: signals) System.out.println(s);
-                System.out.println("\nCurrently declared "+events.size()+" events");
-                for (var s: events) System.out.println(s);
             }
         } catch(Exception e) {
 

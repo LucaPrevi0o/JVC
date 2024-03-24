@@ -1,6 +1,6 @@
 package jvc;
 
-class Signal { //class representing a signal in the project
+public class Signal { //class representing a signal in the project
 
     private boolean[] data; //current value of the signal (array length represents number of bits)
     private String name; //name of signal

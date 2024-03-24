@@ -6,7 +6,6 @@ public class Runner {
 
         var events=FileParser.getEvents();
         var signals=FileParser.getSignals();
-        System.out.println("\n--- --- ---\n\nStarting run operation\n");
         for (var e: events) {
 
             e.operation();
@@ -14,7 +13,5 @@ public class Runner {
             for (var t: signals) System.out.println(t);
             System.out.println();
         }
-
-        System.out.println("--- --- ---");
     }
 }

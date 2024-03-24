@@ -10,8 +10,14 @@ public class Main {
             System.exit(1);
         } else {
             
+            System.out.print("Parsing... ");
             FileParser.parse(args[0]);
+            var signals=FileParser.getSignals();
+            System.out.println("Done!\nTotal signals: "+signals.size()+":\n");
+            for (var s: signals) System.out.println(s);
+            System.out.println("\n--- --- ---\n\nRunning...\n");
             Runner.run();
+            System.out.println("Done!");
         }
     }
 }
