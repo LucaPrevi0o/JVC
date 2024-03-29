@@ -24,7 +24,7 @@ public class Event {
         this.source2=s[1];
     }
 
-    public void operation() {
+    public void operation() { //set target signal with updated data from declared operation
 
         if (token.equals("not")) target.set(Signal.not(source2).getData());
         if (token.equals("and")) target.set(Signal.and(source1, source2).getData());
