@@ -104,14 +104,19 @@ public class FileParser {
                 if (firstToken.equals("signal")) {
 
                     var bitSize=tokens[tokens.length-1];
+                    System.out.println("Bit size: \""+bitSize+"\"");
                     if (!idToken.equals(":")) {
 
                         System.err.println("Expected bit size identifier");
                         System.exit(1);
                     } else if (!isNumber(bitSize)) {
 
-                        System.err.println("Expected bit size at end of declaration");
-                        System.exit(1);
+                        if (bitSize.equals("std_logic")) declare(tokens, 1);
+                        else {
+
+                            System.err.println("Expected bit size at end of declaration");
+                            System.exit(1);
+                        }
                     } else declare(tokens, Integer.parseInt(bitSize));
                 } else {
 

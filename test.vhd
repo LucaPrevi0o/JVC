@@ -1,4 +1,5 @@
 signal sigA, sigB, sigC, sigN : 6;
+signal newS : std_logic;
 
 sigA <= "001100" after 1;
 sigB <= not sigA after 2;
