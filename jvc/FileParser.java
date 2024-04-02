@@ -110,7 +110,7 @@ public class FileParser {
                         System.exit(1);
                     } else if (!isNumber(bitSize)) {
 
-                        if (bitSize.equals("std_logic")) declare(tokens, 1); //"std_logic" used as identifier for single bit sized signals
+                        if (bitSize.equals("bit")) declare(tokens, 1); //"std_logic" used as identifier for single bit sized signals
                         else {
 
                             System.err.println("Expected bit size at end of declaration");
