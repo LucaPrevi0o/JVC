@@ -86,6 +86,12 @@ public class FileParser {
             var newSource=new Signal[2]; //signals to get data from
             newSource[0]=(a.equals(opPos.getFirst()) ? getByName(tokens[a-1]) : lastTarget);
             newSource[1]=getByName(tokens[a+1]);
+            if (newSource[0].getClass()!=target.getClass() || newSource[1].getClass()!=target.getClass()
+                || newSource[0].getClass()!=newSource[1].getClass()) {
+
+                System.err.println("Operation on type mismatched signals");
+                System.exit(1);
+            }
             if (a.equals(opPos.getFirst()) && events.size()>0) timeStamp+=events.getLast().getTime(); //delay for event to occur
             events.add(target.getClass()==Bit.class ? 
                 new BitEvent((Bit)newSource[0], (Bit)newSource[1], (Bit)newTarget, tokens[a], timeStamp) :
