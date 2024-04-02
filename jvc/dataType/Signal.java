@@ -1,4 +1,6 @@
-package jvc;
+package jvc.dataType;
+
+import jvc.FileParser;
 
 public class Signal { //class representing a signal in the project
 

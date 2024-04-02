@@ -1,6 +1,7 @@
 package jvc;
 import java.io.*;
 import java.util.*;
+import jvc.dataType.*;
 
 public class FileParser {
     

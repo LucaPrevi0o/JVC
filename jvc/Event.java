@@ -1,4 +1,5 @@
 package jvc;
+import jvc.dataType.*;
 
 public class Event {
     
