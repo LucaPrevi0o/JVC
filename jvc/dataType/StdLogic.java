@@ -14,7 +14,7 @@ public class StdLogic implements Signal<StdLogic, StdLogicValue> { //class repre
     }
 
     public StdLogicValue[] getData() { return this.data; } //return current data
-    public int getDimension() { return this.data.length; } //return number of StdLogics of the signal
+    public int getDimension() { return this.data.length; } //return number of bits of the signal
     public String getName() { return this.name; } //return signal name
 
     public StdLogic and(StdLogic s1, StdLogic s2) { //and operation (fails if data is not of same length)

@@ -1,9 +1,8 @@
 classe Tokenizer
     parentesi precedenza operatori
     dichiarazione std_logic_vector per segnali di lunghezza >1b
-    dichiarazione bit e bit_vector
+    dichiarazione bit_vector
 
 classe Signal
     dati tipo integer
-    dati tipo bit e bit_vector
-    valori X-U del tipo std_logic
+    dati tipo  bit_vector
