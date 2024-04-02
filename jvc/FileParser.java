@@ -2,6 +2,7 @@ package jvc;
 import java.io.*;
 import java.util.*;
 import jvc.dataType.*;
+import jvc.eventType.*;
 
 public class FileParser {
     
@@ -41,7 +42,7 @@ public class FileParser {
         return null;
     }
 
-    private static void declare(String[] tokens, int bitSize) { //declare new signal in list
+    private static void declare(String[] tokens, String dataType, int bitSize) { //declare new signal in list
 
         for (var a=1; a<tokens.length-2; a++) { //for every name in declaration list, add new signal
 
@@ -54,7 +55,8 @@ public class FileParser {
                 
                 if (s.endsWith(",")) s=s.substring(0, s.length()-1); //remove separator
                 else if (s.startsWith(",")) s=s.substring(1);
-                signals.add(new Signal(s, bitSize)); //add to declaration list
+                if (dataType.equals("bit") || dataType.equals("bit_vector")) signals.add(new Bit(s, bitSize)); //add to declaration list
+                else if (dataType.equals("std_logic") || dataType.equals("std_logic_vector")) signals.add(new StdLogic(s, bitSize)); //add to declaration list
             }
         }
     }
@@ -78,12 +80,16 @@ public class FileParser {
         var lastTarget=target;
         for (var a: opPos) { //loop over every nested operation (currently detected as FIFO, every new operation is computed over the result of the previous in line)
 
-            var newTarget=(a.equals(opPos.getLast()) ? target : new Signal("newTarget", target.getDimension())); //target for operation (global target for assignment is used only as last to compute partial results correctly)
+            var newTarget=(a.equals(opPos.getLast()) ? target : (target.getClass()==Bit.class ?
+                new Bit(target.getName(), target.getDimension()) :
+                new StdLogic(target.getName(), target.getDimension()))); //target for operation (global target for assignment is used only as last to compute partial results correctly)
             var newSource=new Signal[2]; //signals to get data from
             newSource[0]=(a.equals(opPos.getFirst()) ? getByName(tokens[a-1]) : lastTarget);
             newSource[1]=getByName(tokens[a+1]);
             if (a.equals(opPos.getFirst()) && events.size()>0) timeStamp+=events.getLast().getTime(); //delay for event to occur
-            events.add(new Event(newSource[0], newSource[1], newTarget, tokens[a], timeStamp)); //add event to declaration list
+            events.add(target.getClass()==Bit.class ? 
+                new BitEvent((Bit)newSource[0], (Bit)newSource[1], (Bit)newTarget, tokens[a], timeStamp) :
+                new StdLogicEvent((StdLogic)newSource[0], (StdLogic)newSource[1], (StdLogic)newTarget, tokens[a], timeStamp)); //add event to declaration list
             lastTarget=newTarget; //save most recent target for last operation in line to be used as source for next operations
         }
     }
@@ -111,13 +117,9 @@ public class FileParser {
                         System.exit(1);
                     } else if (!isNumber(bitSize)) {
 
-                        if (bitSize.equals("bit")) declare(tokens, 1); //"std_logic" used as identifier for single bit sized signals
-                        else {
-
-                            System.err.println("Expected bit size at end of declaration");
-                            System.exit(1);
-                        }
-                    } else declare(tokens, Integer.parseInt(bitSize)); //explicit numeric notation for longer signals
+                        if (bitSize.equals("bit")) declare(tokens, bitSize, 1); //"std_logic" used as identifier for single bit sized signals
+                        else if (bitSize.equals("std_logic")) declare(tokens, bitSize, 1);
+                    } //else declare(tokens, Integer.parseInt(bitSize)); //explicit numeric notation for longer signals
                 } else {
 
                     var target=getByName(firstToken);

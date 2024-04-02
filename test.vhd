@@ -1,8 +1,5 @@
-signal sigA, sigB, sigC, sigN : 6;
+signal sigA, sigB, sigC, sigN : std_logic;
 signal newS : bit;
 
-sigA <= "001100" after 1;
-sigB <= not sigA after 2;
-sigN <= "101010" after 9;
-sigC <= sigA or sigB and sigN after 5;
-sigN <= not sigN after 1;
+sigA <= "1" after 2;
+sigB <= not sigA after 3;
