@@ -29,5 +29,4 @@ This is the changelog list of every official release for this project. Latest re
 
 ### Alpha v1.0 (pre-release)
 >[!WARNING]
-> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented.
-See the [User Guide](./USER-GUIDE.md) for instructions on ****
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
