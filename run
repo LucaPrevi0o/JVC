@@ -1,2 +1,2 @@
-compileScript
-java Main test.vhd
+javac -d ./java *.java
+java -cp ./java Main test.vhd

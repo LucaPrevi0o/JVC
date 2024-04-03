@@ -80,20 +80,21 @@ public class FileParser {
         var lastTarget=target;
         for (var a: opPos) { //loop over every nested operation (currently detected as FIFO, every new operation is computed over the result of the previous in line)
 
-            var newTarget=(a.equals(opPos.getLast()) ? target : (target.getClass()==Bit.class ?
+            var newTarget=(a.equals(opPos.getLast()) ? target : (target instanceof Bit ?
                 new Bit(target.getName(), target.getDimension()) :
-                new StdLogic(target.getName(), target.getDimension()))); //target for operation (global target for assignment is used only as last to compute partial results correctly)
+                new StdLogic(target.getName(), target.getDimension()))); //target for operation
             var newSource=new Signal[2]; //signals to get data from
             newSource[0]=(a.equals(opPos.getFirst()) ? getByName(tokens[a-1]) : lastTarget);
             newSource[1]=getByName(tokens[a+1]);
-            if (newSource[0].getClass()!=target.getClass() || newSource[1].getClass()!=target.getClass()
-                || newSource[0].getClass()!=newSource[1].getClass()) {
+            if ((newSource[0]!=null && !newSource[0].getClass().equals(target.getClass()))
+                || (newSource[1]!=null && !newSource[1].getClass().equals(target.getClass()))
+                || (newSource[0]!=null && newSource[1]!=null && !newSource[0].getClass().equals(newSource[1].getClass()))) {
 
                 System.err.println("Operation on type mismatched signals");
                 System.exit(1);
             }
             if (a.equals(opPos.getFirst()) && events.size()>0) timeStamp+=events.getLast().getTime(); //delay for event to occur
-            events.add(target.getClass()==Bit.class ? 
+            events.add(target instanceof Bit ? 
                 new BitEvent((Bit)newSource[0], (Bit)newSource[1], (Bit)newTarget, tokens[a], timeStamp) :
                 new StdLogicEvent((StdLogic)newSource[0], (StdLogic)newSource[1], (StdLogic)newTarget, tokens[a], timeStamp)); //add event to declaration list
             lastTarget=newTarget; //save most recent target for last operation in line to be used as source for next operations
@@ -121,11 +122,7 @@ public class FileParser {
 
                         System.err.println("Expected bit size identifier");
                         System.exit(1);
-                    } else if (!isNumber(bitSize)) {
-
-                        if (bitSize.equals("bit")) declare(tokens, bitSize, 1); //"std_logic" used as identifier for single bit sized signals
-                        else if (bitSize.equals("std_logic")) declare(tokens, bitSize, 1);
-                    } //else declare(tokens, Integer.parseInt(bitSize)); //explicit numeric notation for longer signals
+                    } else if (bitSize.equals("bit") || bitSize.equals("std_logic")) declare(tokens, bitSize, 1);
                 } else {
 
                     var target=getByName(firstToken);

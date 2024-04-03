@@ -1,5 +1,0 @@
-rm *.class
-cd jvc
-rm *.class
-cd ..
-javac *.java

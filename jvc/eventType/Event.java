@@ -1,10 +1,8 @@
 package jvc.eventType;
 
-public interface Event<SignalType> {
+public interface Event<SignalType> { //event interface
     
-    String token=""; //operator type
-    int time=0; //time stamp for event
-    
+    //public methods (returning specified data type)
     public int getTime();
     public SignalType getTarget();
     public String getToken();

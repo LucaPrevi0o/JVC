@@ -5,4 +5,4 @@ classe Tokenizer
 
 classe Signal
     dati tipo integer
-    dati tipo  bit_vector
+    dati tipo bit_vector
