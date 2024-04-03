@@ -61,16 +61,6 @@ public class FileParser {
         }
     }
 
-    private static String[] tokenize(String line) { //tokenizer (needs update for complex syntax handling)
-
-        if (!line.endsWith(";")) { //every line ends with ';' char
-
-            System.err.println("Expected line ending identifier");
-            System.exit(1);
-        } else line=line.substring(0, line.length()-1);
-        return line.split(" "); //split tokens every ' '
-    }
-
     private static void parseTokens(String[] tokens, Signal target, int timeStamp) { //parse divided tokens
 
         var opPos=new ArrayList<Integer>(); //count number of operations in line
@@ -111,7 +101,8 @@ public class FileParser {
                 line=reader.readLine(); //read new line from file
                 if (line==null) break;
                 else if (line.equals("")) continue;
-                var tokens=tokenize(line);
+                Tokenizer.newLine(line);
+                var tokens=Tokenizer.tokenize();
 
                 var firstToken=tokens[0]; //first token (can be eihter declaration or operation assignment)
                 var idToken=tokens[tokens.length-2];

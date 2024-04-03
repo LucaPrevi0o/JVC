@@ -1,3 +1,8 @@
+parsing file
+    divisione linee in token
+    pre-parsing dei token in linee di comando
+    parsing dei comandi e operazione su segnali/eventi
+
 classe Tokenizer
     parentesi precedenza operatori
     dichiarazione std_logic_vector per segnali di lunghezza >1b
