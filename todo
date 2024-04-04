@@ -1,7 +1,11 @@
-parsing file
-    divisione linee in token
-    pre-parsing dei token in linee di comando
-    parsing dei comandi e operazione su segnali/eventi
+sectioning file
+    apertura file e lettura per righe
+    divisione righe in token e pre-parsing comandi
+    elaborazione lista comandi in lista eventi
+
+simulazione
+    apertura lista eventi e segnali
+    elaboraziomne comandi ed esecuzione operazioni
 
 classe Tokenizer
     parentesi precedenza operatori

@@ -1,5 +1,4 @@
 package jvc;
-import java.io.*;
 import java.util.*;
 import jvc.dataType.*;
 import jvc.eventType.*;
@@ -93,55 +92,44 @@ public class FileParser {
 
     public static void parse(String fileName) { //parse every line of the file
 
-        try (var reader=new BufferedReader(new FileReader(fileName))) {
+        Tokenizer.tokenize(fileName); //tokenize file
+        var fileTokens=Tokenizer.getGlobalTokens(); //get tokens from every line
+        for (var lineTokens: fileTokens) {
 
-            var line="";
-            while (line!=null) { //tokenize and parse every line
-                
-                line=reader.readLine(); //read new line from file
-                if (line==null) break;
-                else if (line.equals("")) continue;
-                Tokenizer.newLine(line);
-                var tokens=Tokenizer.tokenize();
+            var firstToken=lineTokens[0]; //first token (can be eihter declaration or operation assignment)
+            var idToken=lineTokens[lineTokens.length-2];
+            if (firstToken.equals("signal")) {
 
-                var firstToken=tokens[0]; //first token (can be eihter declaration or operation assignment)
-                var idToken=tokens[tokens.length-2];
-                if (firstToken.equals("signal")) {
+                var bitSize=lineTokens[lineTokens.length-1]; //bit size for every signal in declaration
+                if (!idToken.endsWith(":")) {
 
-                    var bitSize=tokens[tokens.length-1]; //bit size for every signal in declaration
-                    if (!idToken.equals(":")) {
+                    System.err.println("Expected bit size identifier");
+                    System.exit(1);
+                } else if (bitSize.equals("bit") || bitSize.equals("std_logic")) declare(lineTokens, bitSize.substring(0, bitSize.length()-1), 1);
+            } else {
 
-                        System.err.println("Expected bit size identifier");
-                        System.exit(1);
-                    } else if (bitSize.equals("bit") || bitSize.equals("std_logic")) declare(tokens, bitSize, 1);
-                } else {
+                var target=getByName(firstToken);
+                var opToken=lineTokens[1]; //detect token for assignment
+                var lastToken=lineTokens[lineTokens.length-1]; //detect delay for operation chain
+                if (target==null) {
 
-                    var target=getByName(firstToken);
-                    var opToken=tokens[1]; //detect token for assignment
-                    var lastToken=tokens[tokens.length-1]; //detect delay for operation chain
-                    if (target==null) {
+                    System.err.println("Operation with not declared signal");
+                    System.exit(1);
+                } else if (!opToken.equals("<=")) {
 
-                        System.err.println("Operation with not declared signal");
-                        System.exit(1);
-                    } else if (!opToken.equals("<=")) {
+                    System.err.println("Expected operation identifier");
+                    System.exit(1);
+                } else if (!idToken.equals("after")) {
+                    
+                    System.err.println("Expected delay identifier");
+                    System.exit(1);
+                } else if (!isNumber(lastToken)) {
 
-                        System.err.println("Expected operation identifier");
-                        System.exit(1);
-                    } else if (!idToken.equals("after")) {
-                        
-                        System.err.println("Expected delay identifier");
-                        System.exit(1);
-                    } else if (!isNumber(lastToken)) {
-
-                        System.err.println("Expected delay after operation");
-                        System.exit(1);
-                    } else parseTokens(tokens, target, Integer.parseInt(lastToken)); //parse tokenized line 
-                }
+                    System.err.println("Expected delay after operation");
+                    System.exit(1);
+                } else parseTokens(lineTokens, target, Integer.parseInt(lastToken)); //parse tokenized line 
             }
-        } catch(Exception e) {
-
-            e.printStackTrace();
-            System.exit(1);
         }
     }
+        
 }
