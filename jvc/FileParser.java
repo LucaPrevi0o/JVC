@@ -44,42 +44,41 @@ public class FileParser {
     private static void declare(String[] tokens) { //declare new signal in list
 
         var dataType=tokens[tokens.length-1]; //data type
-        if (dataType.startsWith(":")) dataType=dataType.substring(1); //remove separator
-        else if (!tokens[tokens.length-2].endsWith(":")) {
+        if (dataType.startsWith(":")) dataType=dataType.substring(1);
+        else if (tokens[tokens.length-2].endsWith(":")) tokens[tokens.length-2]=tokens[tokens.length-2].substring(0, tokens[tokens.length-2].length()-1);
+        else { //no data type declaration separator
 
             System.err.println("Expected declarator before data type");
             System.exit(1);
-        } else System.out.println(dataType);
+        }
+        
         for (var a=1; a<tokens.length-1; a++) { //for every name in declaration list, add new signal
 
             var signal=tokens[a]; //current token
-            System.out.println(a+" - "+signal);
-            if (a>1 && signal.startsWith(",")) signal=signal.substring(1);
-            else if (!tokens[a-1].endsWith(",")) { //no separator before declaration
+            if (signal.startsWith(",")) signal=signal.substring(1);
+            else if (a>1 && !tokens[a-1].endsWith(",")) { //no separator before declaration
 
                 System.err.println("Expected separator before declaration");
                 System.exit(1);
             } 
 
-            if (a!=tokens.length-2 && signal.endsWith(",")) signal.substring(0, signal.length()-1);
-            else if (!tokens[a+1].startsWith(",")) { //no separator after declaration
+            if (signal.endsWith(",")) signal=signal.substring(0, signal.length()-1);
+            else if (a!=tokens.length-2 && !tokens[a+1].startsWith(",")) { //no separator after declaration
 
                 System.err.println("Expected separator after declaration");
                 System.exit(1);
             } 
 
-            System.out.println(signal);
             if (!signal.matches("[a-zA-Z][a-zA-Z0-9]+")) { //sanitize signal name
 
                 System.err.println("Illegal signal name");
                 System.exit(1);
+            } else {
+
+                if (dataType.equals("bit")) signals.add(new Bit(signal, 1));
+                else if (dataType.equals("std_logic")) signals.add(new StdLogic(signal, 1));
             }
         }
-    }
-
-    private void parseDeclaration(String[] tokens) {
-
-        
     }
 
     public static void parse(String fileName) { //parse every line of the file

@@ -151,7 +151,7 @@ public class StdLogic implements Signal<StdLogic, StdLogicValue> { //class repre
 
     public String toString() { //output signal value
 
-        String s="Signal \""+this.name+"\": ";
+        String s="Signal<std_logic> \""+this.name+"\": ";
         for (int a=0; a<this.data.length; a++) s+=(this.data[a]==StdLogicValue.I ? '1' : (this.data[a]==StdLogicValue.O ? '0' : (this.data[a]==StdLogicValue.U ? 'U' : 'X')));
         return s;
     }
