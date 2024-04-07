@@ -41,42 +41,63 @@ public class FileParser {
         return null;
     }
 
+    private static String[] getSignalType(String[] tokens) { //return signal data type and size
+
+        var lineLength=tokens.length-1;
+        var upperBound=0;
+        var lowerBound=0;
+        var res=new String[2];
+
+        if (tokens[lineLength].equals("bit") || tokens[lineLength].equals("std_logic")) { //single bit dimension
+
+            res[0]=tokens[lineLength];
+            res[1]="1";
+            return res;
+        } else { //multiple bit dimension
+            
+            if (!tokens[lineLength].equals(")") || !isNumber(tokens[lineLength-1])) {
+
+                System.err.println("Missing data type declaration");
+                System.exit(1);
+            } else if (isNumber(tokens[lineLength-1])) upperBound=Integer.parseInt(tokens[lineLength-1]);
+
+            if (!tokens[lineLength-2].equals("to") && !tokens[lineLength-2].equals("downto")) {
+
+                System.err.println("Missing data type declaration");
+                System.exit(1);
+            } else if (!isNumber(tokens[lineLength-3]) || !tokens[lineLength-4].equals("(")) {
+
+                System.err.println("Missing data type declaration");
+                System.exit(1);
+            } else if (isNumber(tokens[lineLength-3])) lowerBound=Integer.parseInt(tokens[lineLength-3]);
+
+            if (tokens[lineLength-5].equals("bit_vector") || tokens[lineLength-5].equals("std_logic_vector")) {
+    
+                res[0]=tokens[lineLength-5];
+                res[1]=""+(upperBound>lowerBound ? upperBound-lowerBound : lowerBound-upperBound);
+                return res;
+            } else return null;
+        }
+    }
+
     private static void declare(String[] tokens) { //declare new signal in list
 
-        var dataType=tokens[tokens.length-1]; //data type
-        if (dataType.startsWith(":")) dataType=dataType.substring(1);
-        else if (tokens[tokens.length-2].endsWith(":")) tokens[tokens.length-2]=tokens[tokens.length-2].substring(0, tokens[tokens.length-2].length()-1);
-        else { //no data type declaration separator
+        var signalType=getSignalType(tokens); //get type for every signal
+        if (signalType==null) System.out.println("smth wrong here");
+        System.out.println("debug: "+signalType[0]);
+        for (var index=1; index<tokens.length; index+=2) { //get signal names
 
-            System.err.println("Expected declarator before data type");
-            System.exit(1);
-        }
-        
-        for (var a=1; a<tokens.length-1; a++) { //for every name in declaration list, add new signal
+            var signalName=tokens[index];
+            if (!tokens[index+1].equals(",") && !tokens[index+1].equals(":")) {
 
-            var signal=tokens[a]; //current token
-            if (signal.startsWith(",")) signal=signal.substring(1);
-            else if (a>1 && !tokens[a-1].endsWith(",")) { //no separator before declaration
-
-                System.err.println("Expected separator before declaration");
-                System.exit(1);
-            } 
-
-            if (signal.endsWith(",")) signal=signal.substring(0, signal.length()-1);
-            else if (a!=tokens.length-2 && !tokens[a+1].startsWith(",")) { //no separator after declaration
-
-                System.err.println("Expected separator after declaration");
-                System.exit(1);
-            } 
-
-            if (!signal.matches("[a-zA-Z][a-zA-Z0-9]+")) { //sanitize signal name
-
-                System.err.println("Illegal signal name");
+                System.err.println("Missing separator between signal declaration");
                 System.exit(1);
             } else {
 
-                if (dataType.equals("bit")) signals.add(new Bit(signal, 1));
-                else if (dataType.equals("std_logic")) signals.add(new StdLogic(signal, 1));
+                signals.add((signalType[0].equals("bit") || signalType[0].equals("bit_vector")) 
+                    ? new Bit(signalName, Integer.parseInt(signalType[1]))
+                    : new StdLogic(signalName, Integer.parseInt(signalType[1])));
+                if (tokens[index+1].equals(":")) break;
             }
         }
     }
@@ -87,7 +108,8 @@ public class FileParser {
         var fileTokens=Tokenizer.getGlobalTokens(); //get tokens from every line
         for (var lineToken: fileTokens) { //loop over every line
 
-            if (lineToken[0].equals("signal")) declare(lineToken);
+            var firstToken=lineToken[0];
+            if (firstToken.equals("signal")) declare(lineToken);
         }
     }
         

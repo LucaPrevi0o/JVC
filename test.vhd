@@ -1,6 +1,3 @@
-signal sigA, sigB, sigC, sigN: std_logic;
+signal sigA, sigB, sigC, sigN: bit_vector(9 downto 4);
+signal sigQ, sigW: std_logic_vector(0 to 9);
 signal newS: bit;
-
-sigA <= "1" after 2;
-sigB <= not sigA after 3;
-sigC <= sigA or sigN after 3;
