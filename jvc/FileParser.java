@@ -84,7 +84,6 @@ public class FileParser {
 
         var signalType=getSignalType(tokens); //get type for every signal
         if (signalType==null) System.out.println("smth wrong here");
-        System.out.println("debug: "+signalType[0]);
         for (var index=1; index<tokens.length; index+=2) { //get signal names
 
             var signalName=tokens[index];

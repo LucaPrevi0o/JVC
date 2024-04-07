@@ -27,8 +27,6 @@ public class Tokenizer {
                 } else textLine=textLine.substring(0, textLine.length()-1);
                 globalTokens.add(textLine.split("[ ]+|(?=,)|(?<=,)|(?=:)|(?<=:)|(?=\\()|(?=\\))|(?<=\\()|(?<=\\))")); //split tokens every ' '
             } while (textLine!=null);
-            System.out.println(globalTokens.size());
-            preParse();
         } catch (Exception e) {
 
             e.printStackTrace();
