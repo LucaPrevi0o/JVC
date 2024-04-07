@@ -25,8 +25,14 @@ public class Tokenizer {
                     System.err.println("Expected line ending identifier");
                     System.exit(1);
                 } else textLine=textLine.substring(0, textLine.length()-1);
-                globalTokens.add(textLine.split("[ ]+|(?=,)|(?<=,)|(?=:)|(?<=:)|(?=\\()|(?=\\))|(?<=\\()|(?<=\\))")); //split tokens every ' '
+
+                if (textLine.contains(";")) {
+
+                    System.err.println("Line ending identifier non expected");
+                    System.exit(1);
+                } else globalTokens.add(textLine.split("[ ]+|(?=,)|(?<=,)|(?=:)|(?<=:)|(?=\\()|(?=\\))|(?<=\\()|(?<=\\))")); //split tokens every ' '
             } while (textLine!=null);
+            preParse();
         } catch (Exception e) {
 
             e.printStackTrace();

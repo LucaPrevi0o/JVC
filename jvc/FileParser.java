@@ -83,22 +83,40 @@ public class FileParser {
     private static void declare(String[] tokens) { //declare new signal in list
 
         var signalType=getSignalType(tokens); //get type for every signal
-        if (signalType==null) System.out.println("smth wrong here");
-        for (var index=1; index<tokens.length; index+=2) { //get signal names
+        if (signalType==null) {
+            
+            System.err.println("Missing data type declaration");
+            System.exit(1);
+        } else for (var index=1; index<tokens.length; index+=2) { //get signal names
 
             var signalName=tokens[index];
-            if (!tokens[index+1].equals(",") && !tokens[index+1].equals(":")) {
+            if (!signalName.matches("[_a-zA-Z][a-zA-Z0-9_]+")) {
+
+                System.err.println("Invalid signal name");
+                System.exit(1);
+            } else if (!tokens[index+1].equals(",") && !tokens[index+1].equals(":")) {
 
                 System.err.println("Missing separator between signal declaration");
                 System.exit(1);
             } else {
 
+                System.out.println(signalName);
                 signals.add((signalType[0].equals("bit") || signalType[0].equals("bit_vector")) 
                     ? new Bit(signalName, Integer.parseInt(signalType[1]))
                     : new StdLogic(signalName, Integer.parseInt(signalType[1])));
-                if (tokens[index+1].equals(":")) break;
+                if (tokens[index+1].equals(":") && tokens[index+2].equals(signalType[0])) break;
+                else if (!tokens[index+1].equals(",")) {
+
+                    System.err.println("Separator between signal declaration not expected");
+                    System.exit(1);
+                } 
             }
         }
+    }
+
+    private static void doThings() {
+
+
     }
 
     public static void parse(String fileName) { //parse every line of the file
@@ -109,6 +127,7 @@ public class FileParser {
 
             var firstToken=lineToken[0];
             if (firstToken.equals("signal")) declare(lineToken);
+            else if (getByName(firstToken)!=null) doThings();
         }
     }
         
