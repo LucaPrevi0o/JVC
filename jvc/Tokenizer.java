@@ -4,10 +4,7 @@ import java.util.*;
 
 public class Tokenizer {
 
-    private static String textLine=null;
     private static ArrayList<String[]> globalTokens=new ArrayList<String[]>();
-
-    public static void newLine(String n) { textLine=n; }
     public static ArrayList<String[]> getGlobalTokens() { return globalTokens; }
     public static String[] getLine(int index) { return globalTokens.get(index); }
 
@@ -15,23 +12,21 @@ public class Tokenizer {
 
         try (var reader=new BufferedReader(new FileReader(fileName))) {
 
+            var textLine="";
             do { //tokenize and parse every line
                 
                 textLine=reader.readLine(); //read new line from file
+                System.out.println(textLine);
                 if (textLine==null) break;
                 else if (textLine.equals("")) continue;
-                else if (!textLine.endsWith(";")) { //every line ends with ';' char
+                else {
 
-                    System.err.println("Expected line ending identifier");
-                    System.exit(1);
-                } else textLine=textLine.substring(0, textLine.length()-1);
-
-                if (textLine.contains(";")) {
-
-                    System.err.println("Line ending identifier non expected");
-                    System.exit(1);
-                } else globalTokens.add(textLine.split("[ ]+|(?=,)|(?<=,)|(?=:)|(?<=:)|(?=\\()|(?=\\))|(?<=\\()|(?<=\\))")); //split tokens every ' '
+                    System.out.println("valid");
+                    var n=textLine.split("\\w+|[^\\w\\s]+|\\s+");
+                    globalTokens.add(n); //split tokens every ' '
+                }
             } while (textLine!=null);
+            System.out.println(globalTokens.size());
             preParse();
         } catch (Exception e) {
 
@@ -44,8 +39,8 @@ public class Tokenizer {
        
         for (var lineToken: globalTokens) {
 
-            System.out.println("New line");
-            for (var token: lineToken) System.out.print("\""+token+"\" ");
+            System.out.print("New line: "+lineToken[0]);
+            for (var i=0; i<lineToken.length; i++) System.out.print("\""+lineToken[i]+"\"");
             System.out.println();
         }
     }
