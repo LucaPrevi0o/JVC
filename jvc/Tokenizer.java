@@ -12,36 +12,22 @@ public class Tokenizer {
 
         try (var reader=new BufferedReader(new FileReader(fileName))) {
 
-            var textLine="";
+            var textLine=""; //new empty line
             do { //tokenize and parse every line
                 
                 textLine=reader.readLine(); //read new line from file
-                System.out.println(textLine);
-                if (textLine==null) break;
-                else if (textLine.equals("")) continue;
+                if (textLine==null) break; //break early
+                else if (textLine.equals("")) continue; //skip empty lines
                 else {
 
-                    System.out.println("valid");
-                    var n=textLine.split("\\w+|[^\\w\\s]+|\\s+");
-                    globalTokens.add(n); //split tokens every ' '
+                    var n=textLine.split("[ \n]+|((?<![ \n])((?=[,;:()])|(?<=[,;:()])))"); //split every token
+                    globalTokens.add(n); //add new tokenized line to list of tokens
                 }
-            } while (textLine!=null);
-            System.out.println(globalTokens.size());
-            preParse();
+            } while (textLine!=null); //scan every line untile EOF
         } catch (Exception e) {
 
             e.printStackTrace();
             System.exit(1);
-        }
-    }
-
-    public static void preParse() {
-       
-        for (var lineToken: globalTokens) {
-
-            System.out.print("New line: "+lineToken[0]);
-            for (var i=0; i<lineToken.length; i++) System.out.print("\""+lineToken[i]+"\"");
-            System.out.println();
         }
     }
 }
