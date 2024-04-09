@@ -43,41 +43,76 @@ public class FileParser {
 
     private static String[] getSignalType(String[] tokens) { //return signal data type and size
 
-        var lineLength=tokens.length-1;
-        var upperBound=0;
-        var lowerBound=0;
-        var res=new String[2];
+        var res=new String[2]; //data type and signal length
+        var state=tokens.length-2; //position in token line
+        if (tokens[state].equals("bit") || tokens[state].equals("std_logic")) { //check for single bit dimension
 
-        if (tokens[lineLength].equals("bit") || tokens[lineLength].equals("std_logic")) { //single bit dimension
-
-            res[0]=tokens[lineLength];
+            res[0]=tokens[tokens.length-2];
             res[1]="1";
             return res;
-        } else { //multiple bit dimension
-            
-            if (!tokens[lineLength].equals(")") || !isNumber(tokens[lineLength-1])) {
+        } else if (!tokens[state].equals(")")) { //check for closed bracket
 
-                System.err.println("Missing data type declaration");
+            System.out.println(tokens.length+" - "+state);
+            System.err.println("Missing closing bracket after type declaration");
+            System.exit(1);
+        } else if (!isNumber(tokens[--state])) { //check for lower bound
+
+            System.err.println("Missing lower bound of vector dimension");
+            System.exit(1);
+        } else if (!tokens[--state].equals("downto") && !tokens[state].equals("to")) { //check for vector declaration
+
+            System.err.println("Missing vector declaration");
+            System.exit(1);
+        } else if (!isNumber(tokens[--state])) {
+
+            System.err.println("Missing upper bound of vector dimension");
+            System.exit(1);
+        } else if (!tokens[--state].equals("(")) {
+
+            System.err.println("Missing opening bracket in type declaration");
+            System.exit(1);
+        } else if (!tokens[--state].equals("bit_vector") && !tokens[state].equals("std_logic_vector")) {
+
+            System.err.println("Incorrect vector type");
+            System.exit(1);
+        } else if (!tokens[--state].equals(":")) {
+
+            System.err.println("Missing type declaration operator");
+            System.exit(1);
+        } else {
+
+            var indexOrder=tokens[tokens.length-4];
+            var lowerBound=Integer.parseInt(tokens[tokens.length-3]);
+            var upperBound=Integer.parseInt(tokens[tokens.length-5]);
+            if (lowerBound==upperBound) {
+
+                System.err.println("Zero-dimension vector declaration");
                 System.exit(1);
-            } else if (isNumber(tokens[lineLength-1])) upperBound=Integer.parseInt(tokens[lineLength-1]);
+            } else if (upperBound>lowerBound) {
 
-            if (!tokens[lineLength-2].equals("to") && !tokens[lineLength-2].equals("downto")) {
+                if (!indexOrder.equals("downto")) {
 
-                System.err.println("Missing data type declaration");
+                    System.err.println("Incorrect index order in vector declaration");
+                    System.exit(1);
+                } else {
+
+                    res[0]=tokens[tokens.length-7];
+                    res[1]=""+(upperBound-lowerBound);
+                    return res;
+                }
+            } else if (!indexOrder.equals("to")) {
+
+                System.err.println("Incorrect index order in vector declaration");
                 System.exit(1);
-            } else if (!isNumber(tokens[lineLength-3]) || !tokens[lineLength-4].equals("(")) {
+            } else {
 
-                System.err.println("Missing data type declaration");
-                System.exit(1);
-            } else if (isNumber(tokens[lineLength-3])) lowerBound=Integer.parseInt(tokens[lineLength-3]);
-
-            if (tokens[lineLength-5].equals("bit_vector") || tokens[lineLength-5].equals("std_logic_vector")) {
-    
-                res[0]=tokens[lineLength-5];
-                res[1]=""+(upperBound>lowerBound ? upperBound-lowerBound : lowerBound-upperBound);
+                res[0]=tokens[tokens.length-7];
+                res[1]=""+(lowerBound-upperBound);
                 return res;
-            } else return null;
+            }
         }
+
+        return null;
     }
 
     private static void declare(String[] tokens) { //declare new signal in list
@@ -90,7 +125,7 @@ public class FileParser {
         } else for (var index=1; index<tokens.length; index+=2) { //get signal names
 
             var signalName=tokens[index];
-            if (!signalName.matches("[_a-zA-Z][a-zA-Z0-9_]+")) {
+            if (!signalName.matches("[_a-zA-Z][a-zA-Z0-9_]*")) {
 
                 System.err.println("Invalid signal name");
                 System.exit(1);
@@ -98,9 +133,12 @@ public class FileParser {
 
                 System.err.println("Missing separator between signal declaration");
                 System.exit(1);
+            } else if (getByName(signalName)!=null) {
+
+                System.err.println("Duplicate signal declaration");
+                System.exit(1);
             } else {
 
-                System.out.println(signalName);
                 signals.add((signalType[0].equals("bit") || signalType[0].equals("bit_vector")) 
                     ? new Bit(signalName, Integer.parseInt(signalType[1]))
                     : new StdLogic(signalName, Integer.parseInt(signalType[1])));
@@ -126,7 +164,12 @@ public class FileParser {
         for (var lineToken: fileTokens) { //loop over every line
 
             var firstToken=lineToken[0];
-            if (firstToken.equals("signal")) declare(lineToken);
+            var lastToken=lineToken[lineToken.length-1];
+            if (!lastToken.equals(";")) {
+
+                System.err.println("Missing end of statement");
+                System.exit(1);
+            } else if (firstToken.equals("signal")) declare(lineToken);
             else if (getByName(firstToken)!=null) doThings();
         }
     }
