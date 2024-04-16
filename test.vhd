@@ -1,2 +1,2 @@
-signal sigA, sigB, sigC, sigN: std_logic_vector(2 to 4);
-signal a, sgbgbeh, c, d, e, f: bit;
+signal sigA, sigB, sigC, sigN: std_logic_vector(2 to 0);
+signal a, b, c, d, e, f: bit;

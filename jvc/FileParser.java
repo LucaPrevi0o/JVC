@@ -47,15 +47,15 @@ public class FileParser {
         var state=tokens.length-2; //position in token line
         if (tokens[state].equals("bit") || tokens[state].equals("std_logic")) { //check for single bit dimension
 
-            res[0]=tokens[tokens.length-2];
-            res[1]="1";
+            res[0]=tokens[tokens.length-2]; //data type name
+            res[1]="1"; //data type length
             return res;
         } else if (!tokens[state].equals(")")) { //check for closed bracket
 
             System.out.println(tokens.length+" - "+state);
             System.err.println("Missing closing bracket after type declaration");
             System.exit(1);
-        } else if (!isNumber(tokens[--state])) { //check for lower bound
+        } else if (!isNumber(tokens[--state]) || Integer.parseInt(tokens[state])<0) { //check for lower bound
 
             System.err.println("Missing lower bound of vector dimension");
             System.exit(1);
@@ -63,34 +63,34 @@ public class FileParser {
 
             System.err.println("Missing vector declaration");
             System.exit(1);
-        } else if (!isNumber(tokens[--state])) {
+        } else if (!isNumber(tokens[--state]) || Integer.parseInt(tokens[state])<0) { //check for upper bound
 
             System.err.println("Missing upper bound of vector dimension");
             System.exit(1);
-        } else if (!tokens[--state].equals("(")) {
+        } else if (!tokens[--state].equals("(")) { //check for open bracket
 
             System.err.println("Missing opening bracket in type declaration");
             System.exit(1);
-        } else if (!tokens[--state].equals("bit_vector") && !tokens[state].equals("std_logic_vector")) {
+        } else if (!tokens[--state].equals("bit_vector") && !tokens[state].equals("std_logic_vector")) { //check for valid long-dimensioned data type
 
             System.err.println("Incorrect vector type");
             System.exit(1);
-        } else if (!tokens[--state].equals(":")) {
+        } else if (!tokens[--state].equals(":")) { //check for type declarator
 
             System.err.println("Missing type declaration operator");
             System.exit(1);
         } else {
 
-            var indexOrder=tokens[tokens.length-4];
-            var lowerBound=Integer.parseInt(tokens[tokens.length-3]);
-            var upperBound=Integer.parseInt(tokens[tokens.length-5]);
-            if (lowerBound==upperBound) {
+            var indexOrder=tokens[tokens.length-4]; //vector direction token
+            var lowerBound=Integer.parseInt(tokens[tokens.length-3]); //first index
+            var upperBound=Integer.parseInt(tokens[tokens.length-5]); //second index
+            if (lowerBound==upperBound) { //check non zero vector signal
 
                 System.err.println("Zero-dimension vector declaration");
                 System.exit(1);
             } else if (upperBound>lowerBound) {
 
-                if (!indexOrder.equals("downto")) {
+                if (!indexOrder.equals("downto")) { //check for correct vector index order
 
                     System.err.println("Incorrect index order in vector declaration");
                     System.exit(1);
@@ -100,7 +100,7 @@ public class FileParser {
                     res[1]=""+(upperBound-lowerBound);
                     return res;
                 }
-            } else if (!indexOrder.equals("to")) {
+            } else if (!indexOrder.equals("to")) { //check for correct vector index order
 
                 System.err.println("Incorrect index order in vector declaration");
                 System.exit(1);
@@ -112,7 +112,7 @@ public class FileParser {
             }
         }
 
-        return null;
+        return null; //failsafe for non-caught errors
     }
 
     private static void declare(String[] tokens) { //declare new signal in list
