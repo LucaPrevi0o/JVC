@@ -28,11 +28,11 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         return true;
     }
 
-    private static boolean isOperator(String token) { //check for string representing signal operation
+    private static boolean isBinaryOperator(String token) { //check for string representing binary signal operation
 
-        return (token.equals("not") || token.equals("and") || token.equals("or")
-            || token.equals("xor") || token.equals("nand") || token.equals("nor")
-            || token.equals("xnor") || isBinary(token));
+        return (token.equals("and") || token.equals("or")
+            || token.equals("xor") || token.equals("nand")
+            || token.equals("nor") || token.equals("xnor") );
     }
 
     private static Signal getByName(String name) { //get signal from declaration list by name
@@ -152,9 +152,38 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         }
     }
 
-    private static void doThings() {
 
 
+    private static void doThings(String[] line) { //parse assignment operations
+
+        var state=0; //scan the whole line
+        var targetSignal=getByName(line[state++]);
+        if (targetSignal==null) { //signal name not recognized
+
+            System.err.println("Assignment on not declared signal");
+            System.exit(1);
+        } else if (!line[state++].equals("<=")) { //missing operator
+
+            System.err.println("Missing assignment operator");
+            System.exit(1);
+        } else { //nested iterative detection for operations
+
+            var firstToken=line[state++];
+            var nextSignal=getByName(line[state]);
+            if (firstToken.equals("not")) {
+
+                System.out.println("Found not operation");
+                if (nextSignal!=null) { //unary not operation over the rest of the expression
+
+                    System.out.println("Found operand for not operation");
+                    //var newResult=new ArrayList<String>(); //create new array of tokens to parse
+                    events.add(targetSignal.getSignalType().equals(Bit.class) ? 
+                        new BitEvent((Bit)nextSignal, (Bit)null, new Bit("target_"+state, targetSignal.getDimension()), firstToken, 0) : 
+                        new StdLogicEvent((StdLogic)nextSignal, (StdLogic)null, new StdLogic("target_"+state, targetSignal.getDimension()), firstToken, 0));
+                    //for (var index=state; !line[index].equals(")"); index++) newResult.add(line[index]);
+                }
+            }
+        }
     }
 
     public static void parse(String fileName) { //parse every line of the file
@@ -169,8 +198,11 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
                 System.err.println("Missing end of statement");
                 System.exit(1);
-            } else if (firstToken.equals("signal")) declare(lineToken);
-            else if (getByName(firstToken)!=null) doThings();
+            } else {
+                
+                if (firstToken.equals("signal")) declare(lineToken);
+                else doThings(lineToken);
+            }
         }
     }
         

@@ -6,6 +6,7 @@ public interface Signal<SignalType extends Signal<SignalType, SignalDataType>, S
     public SignalDataType[] getData(); //different signal types handle different data types
     public int getDimension();
     public String getName();
+    public Class<?> getSignalType();
 
     //operations (for logic-based signals they are the same)
     public SignalType not(SignalType s);

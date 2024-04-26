@@ -14,6 +14,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
     public Boolean[] getData() { return this.data; } //return current data
     public int getDimension() { return this.data.length; } //return number of bits of the signal
     public String getName() { return this.name; } //return signal name
+    public Class<?> getSignalType() { return Bit.class; }
 
     public Bit and(Bit s1, Bit s2) { //and operation (fails if data is not of same length)
 
