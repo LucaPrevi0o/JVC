@@ -152,8 +152,6 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         }
     }
 
-
-
     private static void doThings(String[] line) { //parse assignment operations
 
         var state=0; //scan the whole line
