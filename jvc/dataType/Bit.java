@@ -103,7 +103,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
 
     public String toString() { //output signal value
 
-        String s="Signal<bit> \""+this.name+"\": ";
+        String s="Signal<"+(this.data.length>1 ? "bit_vector" : "bit")+"> \""+this.name+"\": ";
         for (int a=0; a<this.data.length; a++) s+=(this.data[a] ? 1 : 0);
         return s;
     }
