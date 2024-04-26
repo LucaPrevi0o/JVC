@@ -3,7 +3,7 @@ import java.util.*;
 import jvc.dataType.*;
 import jvc.eventType.*;
 
-public class FileParser {
+public class FileParser { // implement "? extends Signal/Event" syntax for list types
     
     private static ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the project
     private static ArrayList<Event> events=new ArrayList<Event>(); //list of events in the dataflow
