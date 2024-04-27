@@ -21,7 +21,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=s1.data[a]&s2.data[a];
+        for (var a=0; a<data.length; a++) data[a]=s1.data[a]&s2.data[a];
         return newS.set(data); //return new signal with updated data
     }
 
@@ -30,7 +30,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=s1.data[a]|s2.data[a];
+        for (var a=0; a<data.length; a++) data[a]=s1.data[a]|s2.data[a];
         return newS.set(data); //return new signal with updated data
     }
 
@@ -39,7 +39,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=s1.data[a]^s2.data[a];
+        for (var a=0; a<data.length; a++) data[a]=s1.data[a]^s2.data[a];
         return newS.set(data); //return new signal with updated data
     }
 
@@ -48,7 +48,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
+        for (var a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
         return newS.set(data); //return new signal with updated data
     }
 
@@ -57,7 +57,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
+        for (var a=0; a<data.length; a++) data[a]=!(s1.data[a]|s2.data[a]);
         return newS.set(data); //return new signal with updated data
     }
 
@@ -66,7 +66,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         if (s1.data.length!=s2.data.length) throw new ArrayIndexOutOfBoundsException();
         var newS=new Bit(s2.data.length);
         var data=new Boolean[s1.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=!(s1.data[a]^s2.data[a]);
+        for (var a=0; a<data.length; a++) data[a]=!(s1.data[a]^s2.data[a]);
         return newS.set(data); //return new signal with updated data
     }
 
@@ -74,7 +74,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
 
         var newS=new Bit(s.data.length);
         var data=new Boolean[s.data.length]; //generate new data
-        for (int a=0; a<data.length; a++) data[a]=!(s.data[a]);
+        for (var a=0; a<data.length; a++) data[a]=!(s.data[a]);
         return newS.set(data); //return new signal with updated data
     }
 
@@ -91,7 +91,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
     public Bit set(Boolean[] val) { //set data to signal
 
         if (val.length!=this.data.length) throw new ArrayIndexOutOfBoundsException();
-        else for (int i=0; i<this.data.length; i++) this.data[i]=val[i];
+        else for (var i=0; i<this.data.length; i++) this.data[i]=val[i];
         return this; //chaining
     }
 
@@ -105,7 +105,7 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
     public String toString() { //output signal value
 
         String s="Signal<"+(this.data.length>1 ? "bit_vector" : "bit")+"> \""+this.name+"\": ";
-        for (int a=0; a<this.data.length; a++) s+=(this.data[a] ? 1 : 0);
+        for (var a=0; a<this.data.length; a++) s+=(this.data[a] ? 1 : 0);
         return s;
     }
 

@@ -176,9 +176,13 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                     System.out.println("Found operand for not operation");
                     //var newResult=new ArrayList<String>(); //create new array of tokens to parse
                     events.add(targetSignal.getSignalType().equals(Bit.class) ? 
-                        new BitEvent((Bit)nextSignal, (Bit)null, new Bit("target_"+state, targetSignal.getDimension()), firstToken, 0) : 
-                        new StdLogicEvent((StdLogic)nextSignal, (StdLogic)null, new StdLogic("target_"+state, targetSignal.getDimension()), firstToken, 0));
+                        new BitEvent((Bit)null, (Bit)nextSignal, new Bit("target_"+state, targetSignal.getDimension()), firstToken, 0) : 
+                        new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, new StdLogic("target_"+state, targetSignal.getDimension()), firstToken, 0));
                     //for (var index=state; !line[index].equals(")"); index++) newResult.add(line[index]);
+                } else {
+
+                    System.err.println("Operand for not operation not found");
+                    System.exit(1);
                 }
             }
         }

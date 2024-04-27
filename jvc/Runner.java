@@ -8,6 +8,7 @@ public class Runner {
         var signals=FileParser.getSignals();
         for (var e: events) {
 
+            System.out.println(e);
             e.operation(); //execute operation for current event
             System.out.println("Time: "+e.getTime());
             for (var t: signals) System.out.println(t); //dump signal list after each event
