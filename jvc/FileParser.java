@@ -200,7 +200,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 events.add(targetSignal.getSignalType().equals(Bit.class) ? 
                     new BitEvent((Bit)null, (Bit)null, new Bit("newtarget_"+state, targetSignal.getDimension()), newTarget.getName(), 0) :
                     new StdLogicEvent((StdLogic)null, (StdLogic)null, new StdLogic("newtarget_"+state, targetSignal.getDimension()), newTarget.getName(), 0));
-                state=i; //skip every token inside nested expression
+                i=index; //skip every token inside nested expression
             } else if (isBinaryOperator(currentToken)) { //next token is binary operation
 
                 System.out.println("Found binary operation");
