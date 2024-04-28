@@ -36,6 +36,12 @@ public class BitEvent implements Event<Bit> {
         if (token.equals("nand")) target.set(operator.nand(source1, source2).getData());
         if (token.equals("nor")) target.set(operator.nor(source1, source2).getData());
         if (token.equals("xnor")) target.set(operator.xnor(source1, source2).getData());
+        if (FileParser.getByName(token)!=null) {
+            
+            var newData="";
+            for (var i=0; i<FileParser.getByName(token).getData().length; i++) newData+=(""+FileParser.getByName(token).getData()[i].equals("1"));
+            target.set(operator.assign(newData).getData());
+        }
         if (FileParser.isBinary(token)) target.set(operator.assign(token).getData());
     }
 
