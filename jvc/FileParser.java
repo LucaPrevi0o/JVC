@@ -154,7 +154,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
     private static void evalExpression(int state, String[] line, Signal targetSignal) { //evaluation of single expression
 
-        for (var i=state; !line[i].equals(";"); i++) { //evaluation of assignment expression
+        for (var i=state; i<line.length && !line[i].equals(";"); i++) { //evaluation of assignment expression
 
             var currentToken=line[i]; //check current token in expression
             System.out.println("Checking next token: \""+currentToken+"\"");
@@ -167,14 +167,18 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                     new Bit(newTargetName, newTargetDimension) :
                     new StdLogic(newTargetName, newTargetDimension);
                 signals.add(newTarget); //add new target signal to list of declared signals
+                System.out.println("Added new signal");
+
                 var newExpression=new ArrayList<String>(); //generate new expression to be parsed
                 newExpression.add(newTargetName); //add target
                 newExpression.add("<="); //add assignment operator
+                System.out.println("Initialized new expression");
 
                 var openBrackets=1; //count number of open brackets
                 var index=i; //start loop at current index
-                for (; openBrackets==0; index++) { //loop over the entire nested expression
+                do { //loop over the entire nested expression
 
+                    System.out.println("Checking new token: \""+line[++index]+"\"");
                     if (line[index].equals(";")) { //detect end of line before closing bracket
 
                         System.err.println("Missing closing bracket");
@@ -183,22 +187,23 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                         
                         if (line[index].equals("(")) openBrackets++; //check number of open/closed brackets to be equal
                         else if (line[index].equals(")")) openBrackets--;
-                        newExpression.add(line[index]); //add token to expression to be parsed
+                        if (openBrackets!=0) newExpression.add(line[index]); //add token to expression to be parsed
                     }
-                }
+                } while (openBrackets!=0);
 
                 System.out.println("Expression terminated with "+newExpression.size()+" tokens");
                 for (var s: newExpression) System.out.println("Token: \""+s+"\"");
                 var newParsableExpr=new String[newExpression.size()]; //create array to parse new expression
                 newExpression.toArray(newParsableExpr); //pass list into array elements
-                state=i; //skip every token inside nested expression
                 System.out.println("Preparing expression for evaluation");
                 evaluate(newParsableExpr); //recursively call evaluation for simpler expressions
                 events.add(targetSignal.getSignalType().equals(Bit.class) ? 
                     new BitEvent((Bit)null, (Bit)null, new Bit("newtarget_"+state, targetSignal.getDimension()), newTarget.getName(), 0) :
                     new StdLogicEvent((StdLogic)null, (StdLogic)null, new StdLogic("newtarget_"+state, targetSignal.getDimension()), newTarget.getName(), 0));
+                state=i; //skip every token inside nested expression
             } else if (isBinaryOperator(currentToken)) { //next token is binary operation
 
+                System.out.println("Found binary operation");
                 var prevToken=getByName(line[i-1]); //check previous/next token to be a valid signal name
                 var nextToken=getByName(line[i+1]);
                 if (prevToken==null || nextToken==null) { //invalid signal name
@@ -212,9 +217,11 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 } else events.add(targetSignal.getSignalType().equals(Bit.class) ?
                     new BitEvent((Bit)prevToken, (Bit)nextToken, new Bit("newtarget_"+state, targetSignal.getDimension()), currentToken, 0) :
                     new StdLogicEvent((StdLogic)prevToken, (StdLogic)nextToken, new StdLogic("newtarget_"+state, targetSignal.getDimension()), currentToken, 0));
+                System.out.println("Binary operation added to event list");
             }
         }
 
+        System.out.println("Evaluation terminated in expression");
         events.add(targetSignal.getSignalType().equals(Bit.class) ? 
             new BitEvent((Bit)null, (Bit)null, (Bit)targetSignal, targetSignal.getName(), 0) :
             new StdLogicEvent((StdLogic)null, (StdLogic)null, (StdLogic)targetSignal, targetSignal.getName(), 0)); //set target signal to 
