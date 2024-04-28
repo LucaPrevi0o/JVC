@@ -166,20 +166,44 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
             System.exit(1);
         } else { //nested iterative detection for operations
 
-            var firstToken=line[state++];
-            var nextSignal=getByName(line[state]);
-            if (firstToken.equals("not")) {
+            var firstToken=line[state++]; //check first token of assignment
+            if (firstToken.equals("not")) { //not operation requires either signal or expression
 
+                var nextToken=line[state++];
+                var nextSignal=getByName(nextToken); //try getting value of signal
                 System.out.println("Found not operation");
-                if (nextSignal!=null) { //unary not operation over the rest of the expression
+                if (nextSignal!=null) { //unary not operation over next signal
 
                     System.out.println("Found operand for not operation");
-                    //var newResult=new ArrayList<String>(); //create new array of tokens to parse
-                    events.add(targetSignal.getSignalType().equals(Bit.class) ? 
+                    var type=targetSignal.getSignalType();
+                    if (!type.equals(nextSignal.getSignalType())) { //type mismatch
+
+                        System.err.println("Type mismatch between signal and assignment");
+                        System.exit(1);
+                    } else events.add(nextSignal.getSignalType().equals(Bit.class) ? 
                         new BitEvent((Bit)null, (Bit)nextSignal, new Bit("target_"+state, targetSignal.getDimension()), firstToken, 0) : 
                         new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, new StdLogic("target_"+state, targetSignal.getDimension()), firstToken, 0));
-                    //for (var index=state; !line[index].equals(")"); index++) newResult.add(line[index]);
-                } else {
+                } else if (nextToken.equals("(")) { //unary not operation over expression to be evaluated
+
+                    var newExpr=new ArrayList<String>(); //new list of tokens
+                    System.out.println("Found expression to be evaluated");
+                    newExpr.add("target_"+state); //declare new target
+                    newExpr.add("<="); //assignment to target signal
+                    var index=state; //parse every token in the expression
+                    for (; !line[index].equals(")"); index++) { //loop over the expression
+
+                        if (line[index+1].equals(";")) { //detected end of line before closing bracket
+
+                            System.err.println("Missing closing bracket");
+                            System.exit(1);
+                        } else newExpr.add(line[index]); //add every token in the expression
+                    }
+                    System.out.println("Expression with "+newExpr.size()+" tokens ready to be parsed");
+                    for (var s: newExpr) System.out.println("Token: \""+s+"\"");
+                    var parsableExpr=(String[])newExpr.toArray(); //get array of tokens to be parsed
+                    doThings(parsableExpr); //recursevely call parsing evaluation to construct the final chain of events
+                    state=index; //skip every token in the expression that already has been parsed
+                } else { //error in parsing
 
                     System.err.println("Operand for not operation not found");
                     System.exit(1);
