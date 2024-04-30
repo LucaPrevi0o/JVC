@@ -32,7 +32,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
         return (token.equals("and") || token.equals("or")
             || token.equals("xor") || token.equals("nand")
-            || token.equals("nor") || token.equals("xnor") );
+            || token.equals("nor") || token.equals("xnor"));
     }
 
     public static Signal getByName(String name) { //get signal from declaration list by name
@@ -229,7 +229,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 if ((prevSignal=getByName(prevToken))!=null) System.out.println("Previous token is valid signal");
                 else if (prevToken.equals(")")) {
                     
-                    System.out.println("Prevoius token is result of nested expression\nCurrent event list size: "+eventList.size());
+                    System.out.println("Previous token is result of nested expression\nCurrent event list size: "+eventList.size());
                     prevSignal=(Signal)auxSignals.get(auxSignals.size()-1); //the last event in list will always be either a valid name or the result of nested expression
                 }
 
@@ -247,6 +247,11 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 if (prevSignal!=null && nextSignal!=null) eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
                     new BitEvent((Bit)prevSignal, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
                     new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
+                else {
+
+                    System.err.println("smth gone bad lol");
+                    System.exit(1);
+                }
             }
         }
 
