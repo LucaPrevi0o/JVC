@@ -5,7 +5,7 @@ import jvc.eventType.*;
 
 public class FileParser { // implement "? extends Signal/Event" syntax for list types
     
-    private static ArrayList<Signal> signals=new ArrayList<Signal>(); //list of signals in the project
+    private static ArrayList<Signal> signals=new ArrayList<Signal>(), auxSignals=new ArrayList<Signal>(); //list of signals in the project
     private static ArrayList<Event> events=new ArrayList<Event>(); //list of events in the dataflow
 
     public static ArrayList<Event> getEvents() { return events; }
@@ -35,11 +35,10 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
             || token.equals("nor") || token.equals("xnor") );
     }
 
-    private static Signal getByEventIndex(int index) { return (Signal)events.get(index).getTarget(); }
-
     public static Signal getByName(String name) { //get signal from declaration list by name
 
         for (var s: signals) if (s.getName().equals(name)) return s;
+        for (var s: auxSignals) if (s.getName().equals(name)) return s;
         return null;
     }
 
@@ -188,7 +187,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
                     new Bit(newTargetName, newTargetDimension) :
                     new StdLogic(newTargetName, newTargetDimension);
-                signals.add(newTarget); //add new target signal to list of declared signals
+                auxSignals.add(newTarget); //add new target signal to list of declared signals
                 System.out.println("Added new signal");
 
                 var newExpression=new ArrayList<String>(); //generate new expression to be parsed
@@ -231,7 +230,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 else if (prevToken.equals(")")) {
                     
                     System.out.println("Prevoius token is result of nested expression\nCurrent event list size: "+eventList.size());
-                    prevSignal=(Signal)eventList.get(eventList.size()-1).getTarget(); //the last event in list will always be either a valid name or the result of nested expression
+                    prevSignal=(Signal)auxSignals.get(auxSignals.size()-1); //the last event in list will always be either a valid name or the result of nested expression
                 }
 
                 if ((nextSignal=getByName(nextToken))!=null) System.out.println("Next token is valid signal");
@@ -242,7 +241,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
                     new Bit(newTargetName, newTargetDimension) :
                     new StdLogic(newTargetName, newTargetDimension);
-                signals.add(newTarget); //add new target signal to list of declared signals
+                auxSignals.add(newTarget); //add new target signal to list of declared signals
                 System.out.println("Added new signal");
 
                 if (prevSignal!=null && nextSignal!=null) eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
@@ -253,8 +252,8 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
         System.out.println("Evaluation terminated in expression");
         eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-            new BitEvent((Bit)null, (Bit)eventList.get(eventList.size()-1).getTarget(), (Bit)exprTarget, "copy", 0) :
-            new StdLogicEvent((StdLogic)null, (StdLogic)eventList.get(eventList.size()-1).getTarget(), (StdLogic)exprTarget, "copy", 0)); //set target signal to 
+            new BitEvent((Bit)null, (Bit)auxSignals.get(auxSignals.size()-1), (Bit)exprTarget, "copy", 0) :
+            new StdLogicEvent((StdLogic)null, (StdLogic)auxSignals.get(auxSignals.size()-1), (StdLogic)exprTarget, "copy", 0)); //set target signal to 
         System.out.println("Event list of this expression has size "+eventList.size());
         return eventList;
     }
