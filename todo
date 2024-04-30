@@ -1,17 +1,3 @@
-sectioning file
-    apertura file e lettura per righe
-    divisione righe in token e pre-parsing comandi
-    elaborazione lista comandi in lista eventi
-
-simulazione
-    apertura lista eventi e segnali
-    elaboraziomne comandi ed esecuzione operazioni
-
-classe Tokenizer
-    parentesi precedenza operatori
-    dichiarazione std_logic_vector per segnali di lunghezza >1b
-    dichiarazione bit_vector
-
-classe Signal
-    dati tipo integer
-    dati tipo bit_vector
+un sacco di refactoring
+implementazione metodi instanceByType per nuovi event/signal
+controllare che tutto funzioni e iniziare a consegnare
