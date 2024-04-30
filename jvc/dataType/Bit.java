@@ -102,6 +102,13 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         return s;
     }
 
+    public Bit copy(Bit other) {
+
+        Bit s=new Bit(other.name, other.data.length);
+        s.set(other.data);
+        return s;
+    }
+
     public String toString() { //output signal value
 
         String s="Signal<"+(this.data.length>1 ? "bit_vector" : "bit")+"> \""+this.name+"\": ";

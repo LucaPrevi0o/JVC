@@ -150,6 +150,13 @@ public class StdLogic implements Signal<StdLogic, StdLogicValue> { //class repre
         return s;
     }
 
+    public StdLogic copy(StdLogic other) {
+
+        StdLogic s=new StdLogic(other.name, other.data.length);
+        s.set(other.data);
+        return s;
+    }
+
     public String toString() { //output signal value
 
         String s="Signal<"+(this.data.length>1 ? "std_logic_vector" : "std_logic")+"> \""+this.name+"\": ";

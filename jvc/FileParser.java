@@ -183,7 +183,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
             if (currentToken.equals("(")) { //evaluate bracketed nested expression
 
                 System.out.println("New nested expression found");
-                var newTargetName=""+depth+"x"+state; //generate new target signal name
+                var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
                 var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
                 var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
                     new Bit(newTargetName, newTargetDimension) :
@@ -219,6 +219,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 newExpression.toArray(newParsableExpr); //pass list into array elements
                 System.out.println("Preparing expression for evaluation");
                 eventList.addAll(evalExpression(newParsableExpr, depth+1)); //add every new event in nested assignment into the event list
+                System.out.println("Event list has now size "+eventList.size());
                 tokenIndex=nestedTokenIndex; //skip every token inside nested expression
             } else if (isBinaryOperator(currentToken)) { //next token is binary operation
 
@@ -229,30 +230,32 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 if ((prevSignal=getByName(prevToken))!=null) System.out.println("Previous token is valid signal");
                 else if (prevToken.equals(")")) {
                     
-                    System.out.println("Prevoius token is result of nested expression");
-                    prevSignal=getByEventIndex(events.size()-1); //the last event in list will always be either a valid name or the result of nested expression
+                    System.out.println("Prevoius token is result of nested expression\nCurrent event list size: "+eventList.size());
+                    prevSignal=(Signal)eventList.get(eventList.size()-1).getTarget(); //the last event in list will always be either a valid name or the result of nested expression
                 }
-                /* var prevToken=getByName(line[tokenIndex-1]); //check previous/next token to be a valid signal name
-                var nextToken=getByName(line[tokenIndex+1]);
-                if (prevToken==null || nextToken==null) { //invalid signal name
 
-                    System.err.println("Binary operation on not declared signal");
-                    System.exit(1);
-                } else if (!prevToken.getSignalType().equals(exprTarget.getSignalType()) || !nextToken.getSignalType().equals(exprTarget.getSignalType())) { //type mismatch
+                if ((nextSignal=getByName(nextToken))!=null) System.out.println("Next token is valid signal");
+                else if (prevToken.equals("(")) System.out.println("Next token is result of nested expression");
 
-                    System.err.println("Type mismatch between operands and result");
-                    System.exit(1);
-                } else eventList.add(exprTarget.getSignalType().equals(Bit.class) ?
-                    new BitEvent((Bit)prevToken, (Bit)nextToken, new Bit("newtarget_"+state, exprTarget.getDimension()), currentToken, 0) :
-                    new StdLogicEvent((StdLogic)prevToken, (StdLogic)nextToken, new StdLogic("newtarget_"+state, exprTarget.getDimension()), currentToken, 0));
-                System.out.println("Binary operation added to event list"); */
+                var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
+                var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
+                var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
+                    new Bit(newTargetName, newTargetDimension) :
+                    new StdLogic(newTargetName, newTargetDimension);
+                signals.add(newTarget); //add new target signal to list of declared signals
+                System.out.println("Added new signal");
+
+                if (prevSignal!=null && nextSignal!=null) eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
+                    new BitEvent((Bit)prevSignal, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
+                    new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
             }
         }
 
         System.out.println("Evaluation terminated in expression");
         eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-            new BitEvent((Bit)null, (Bit)null, (Bit)exprTarget, exprTarget.getName(), 0) :
-            new StdLogicEvent((StdLogic)null, (StdLogic)null, (StdLogic)exprTarget, exprTarget.getName(), 0)); //set target signal to 
+            new BitEvent((Bit)null, (Bit)eventList.get(eventList.size()-1).getTarget(), (Bit)exprTarget, "copy", 0) :
+            new StdLogicEvent((StdLogic)null, (StdLogic)eventList.get(eventList.size()-1).getTarget(), (StdLogic)exprTarget, "copy", 0)); //set target signal to 
+        System.out.println("Event list of this expression has size "+eventList.size());
         return eventList;
     }
 

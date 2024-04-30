@@ -17,4 +17,7 @@ public interface Signal<SignalType extends Signal<SignalType, SignalDataType>, S
     public SignalType nor(SignalType s1, SignalType s2);
     public SignalType xnor(SignalType s1, SignalType s2);
     public SignalType assign(String val);
+
+    public SignalType copy();
+    public SignalType copy(SignalType other);
 }
