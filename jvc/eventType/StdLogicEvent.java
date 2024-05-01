@@ -51,7 +51,7 @@ public class StdLogicEvent implements Event<StdLogic> {
 
     public String toString() {
 
-        return "New Event<"+StdLogic.class+">(timestamp "+time+"):\nTarget is "+target.toString()+
+        return "New Event<"+(target.getDimension()>1 ? "std_logic_vector["+target.getDimension()+"]" : "std_logic")+">(timestamp "+time+"):\nTarget is "+target.toString()+
             "\nSource is ("+(source1==null ? "null" : source1.toString())+" - "+(source2==null ? "null" : source2.toString())+
             ")\nOperation is: "+token+"\n";
     }

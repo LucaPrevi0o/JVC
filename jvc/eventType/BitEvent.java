@@ -51,7 +51,7 @@ public class BitEvent implements Event<Bit> {
 
     public String toString() {
 
-        return "New Event<"+Bit.class+">(timestamp "+time+"):\nTarget is "+target.toString()+
+        return "New Event<"+(target.getDimension()>1 ? "bit_vector["+target.getDimension()+"]" : "bit")+">(timestamp "+time+"):\nTarget is "+target.toString()+
             "\nSource is ("+(source1==null ? "null" : source1.toString())+" - "+(source2==null ? "null" : source2.toString())+
             ")\nOperation is: "+token+"\n";
     }

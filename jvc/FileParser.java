@@ -98,7 +98,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 } else { //set result
 
                     res[0]=tokens[tokens.length-7];
-                    res[1]=""+(upperBound-lowerBound);
+                    res[1]=""+(upperBound-lowerBound+1);
                     return res;
                 }
             } else if (!indexOrder.equals("to")) { //check for correct vector index order
@@ -108,7 +108,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
             } else { //set result
 
                 res[0]=tokens[tokens.length-7];
-                res[1]=""+(lowerBound-upperBound);
+                res[1]=""+(lowerBound-upperBound+1);
                 return res;
             }
         }
@@ -234,7 +234,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 }
 
                 if ((nextSignal=getByName(nextToken))!=null) System.out.println("Next token is valid signal");
-                else if (prevToken.equals("(")) System.out.println("Next token is result of nested expression");
+                else if (nextToken.equals("(")) System.out.println("Next token is result of nested expression");
 
                 var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
                 var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
