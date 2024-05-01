@@ -23,9 +23,23 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
         if (!s.startsWith("\"") || !s.endsWith("\"")) return false;
         var s1=s.substring(1, s.length()-1);
-        if (!isNumber(s1)) return false;
+        if (!isNumber(s1)) return false; //next check is necessary to parse as valid binary number (not any integer)
         for (var a=0; a<s1.length(); a++) if (s1.charAt(a)!='0' && s1.charAt(a)!='1') return false;
         return true;
+    }
+
+    public static boolean isStdLogic(String s) { //check for binary std_logic string (formatted as "nnnn")
+
+        if (!s.startsWith("\"") || !s.endsWith("\"")) return false;
+        var s1=s.substring(1, s.length()-1);
+        for (var a=0; a<s1.length(); a++) if (s1.charAt(a)!='O' && s1.charAt(a)!='I') return false;
+        return true;
+    }
+
+    private static int getBinarySize(String s) { //return length for binary initialization string
+
+        if (!isBinary(s) && !isStdLogic(s)) return -1;
+        return s.length()-2; //if the string is valid binary/std_logic value, return its length without apices
     }
 
     private static boolean isBinaryOperator(String token) { //check for string representing binary signal operation
@@ -230,11 +244,53 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 else if (prevToken.equals(")")) {
                     
                     System.out.println("Previous token is result of nested expression\nCurrent event list size: "+eventList.size());
-                    prevSignal=(Signal)auxSignals.get(auxSignals.size()-1); //the last event in list will always be either a valid name or the result of nested expression
+                    prevSignal=(Signal)auxSignals.getLast(); //the last event in list will always be either a valid name or the result of nested expression
                 }
 
                 if ((nextSignal=getByName(nextToken))!=null) System.out.println("Next token is valid signal");
-                else if (nextToken.equals("(")) System.out.println("Next token is result of nested expression");
+                else if (nextToken.equals("(")) { //evaluate bracketed nested expression (TODO: avoid copy-paste of a dgjillion lines of code)
+
+                    System.out.println("New nested expression found");
+                    var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
+                    var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
+                    var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
+                        new Bit(newTargetName, newTargetDimension) :
+                        new StdLogic(newTargetName, newTargetDimension);
+                    auxSignals.add(newTarget); //add new target signal to list of declared signals
+                    System.out.println("Added new signal");
+    
+                    var newExpression=new ArrayList<String>(); //generate new expression to be parsed
+                    newExpression.add(newTargetName); //add target
+                    newExpression.add("<="); //add assignment operator
+                    System.out.println("Initialized new expression");
+    
+                    var openBrackets=1; //count number of open brackets
+                    var nestedTokenIndex=tokenIndex+1; //start loop at current index
+                    do { //loop over the entire nested expression
+    
+                        System.out.println("Checking new token: \""+line[++nestedTokenIndex]+"\"");
+                        if (line[nestedTokenIndex].equals(";")) { //detect end of line before closing bracket
+    
+                            System.err.println("Missing closing bracket");
+                            System.exit(1);
+                        } else {
+                            
+                            if (line[nestedTokenIndex].equals("(")) openBrackets++; //check number of open/closed brackets to be equal
+                            else if (line[nestedTokenIndex].equals(")")) openBrackets--;
+                            if (openBrackets!=0) newExpression.add(line[nestedTokenIndex]); //add token to expression to be parsed
+                        }
+                    } while (openBrackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finished
+    
+                    System.out.println("Expression terminated with "+newExpression.size()+" tokens");
+                    for (var s: newExpression) System.out.println("Token: \""+s+"\"");
+                    var newParsableExpr=new String[newExpression.size()]; //create array to parse new expression
+                    newExpression.toArray(newParsableExpr); //pass list into array elements
+                    System.out.println("Preparing expression for evaluation");
+                    eventList.addAll(evalExpression(newParsableExpr, depth+1)); //add every new event in nested assignment into the event list
+                    System.out.println("Event list has now size "+eventList.size());
+                    tokenIndex=nestedTokenIndex; //skip every token inside nested expression
+                    nextSignal=(Signal)eventList.getLast().getTarget(); //set next signal for operation as result of nested expression
+                }
 
                 var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
                 var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
@@ -249,16 +305,34 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                     new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
                 else {
 
-                    System.err.println("smth gone bad lol");
+                    System.err.println("Operation on not assigned signal");
                     System.exit(1);
+                }
+            } else if (isBinary(currentToken)) { //direct assignment
+
+                System.out.println("Found direct assignment");
+                if (!line[tokenIndex+1].equals(";")) { //invalid token after assignment string
+
+                    System.err.println("Unexpected token after direct assignment");
+                    System.exit(1);
+                } else if (exprTarget.getDimension()!=getBinarySize(currentToken)) {
+
+                    System.err.println("Assignment string with incorrect size");
+                    System.exit(1);
+                } else { //valid assignment for current signal
+                    
+                    eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
+                        new BitEvent((Bit)null, (Bit)null, (Bit)exprTarget, currentToken, 0) :
+                        new StdLogicEvent((StdLogic)null, (StdLogic)null, (StdLogic)exprTarget, currentToken, 0));
+                    return eventList; //break early (no other elements can be added after direct assignment)
                 }
             }
         }
 
         System.out.println("Evaluation terminated in expression");
         eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-            new BitEvent((Bit)null, (Bit)auxSignals.get(auxSignals.size()-1), (Bit)exprTarget, "copy", 0) :
-            new StdLogicEvent((StdLogic)null, (StdLogic)auxSignals.get(auxSignals.size()-1), (StdLogic)exprTarget, "copy", 0)); //set target signal to 
+            new BitEvent((Bit)null, (Bit)auxSignals.getLast(), (Bit)exprTarget, "copy", 0) :
+            new StdLogicEvent((StdLogic)null, (StdLogic)auxSignals.getLast(), (StdLogic)exprTarget, "copy", 0));
         System.out.println("Event list of this expression has size "+eventList.size());
         return eventList;
     }
