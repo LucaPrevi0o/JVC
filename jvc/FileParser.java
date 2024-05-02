@@ -175,6 +175,9 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         return null; //failsafe for checking errors
     }
 
+    //you stay here until debug is done, but i need to do you again
+    //and this time i will work backwards
+    //because last time i worked backwards everything went smooth af
     private static ArrayList<Event> evalExpression(String[] line, int depth) { //evaluation of single expression
 
         System.out.println("Starting expression evaluation");
@@ -290,6 +293,28 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                     System.out.println("Event list has now size "+eventList.size());
                     tokenIndex=nestedTokenIndex; //skip every token inside nested expression
                     nextSignal=(Signal)eventList.getLast().getTarget(); //set next signal for operation as result of nested expression
+                } else if (nextToken.equals("not")) { //not operation
+
+                    System.out.println("Found not operation");
+                    nextSignal=getByName(line[tokenIndex+1]); //get reference for signal
+                    if (nextSignal==null) { //not defined source signal
+    
+                        System.err.println("Operation on not defined signal");
+                        System.exit(1);
+                    } else {
+                        
+                        var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
+                        var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
+                        var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
+                            new Bit(newTargetName, newTargetDimension) :
+                            new StdLogic(newTargetName, newTargetDimension);
+                        auxSignals.add(newTarget); //add new target signal to list of declared signals
+                        System.out.println("Added new signal");
+    
+                            eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
+                        new BitEvent((Bit)null, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
+                        new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
+                    }
                 }
 
                 var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
@@ -315,7 +340,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
                     System.err.println("Unexpected token after direct assignment");
                     System.exit(1);
-                } else if (exprTarget.getDimension()!=getBinarySize(currentToken)) {
+                } else if (exprTarget.getDimension()!=getBinarySize(currentToken)) { //not corresponding size for target
 
                     System.err.println("Assignment string with incorrect size");
                     System.exit(1);
@@ -325,6 +350,28 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                         new BitEvent((Bit)null, (Bit)null, (Bit)exprTarget, currentToken, 0) :
                         new StdLogicEvent((StdLogic)null, (StdLogic)null, (StdLogic)exprTarget, currentToken, 0));
                     return eventList; //break early (no other elements can be added after direct assignment)
+                }
+            } else if (currentToken.equals("not")) { //not operation
+
+                System.out.println("Found not operation");
+                var nextSignal=getByName(line[tokenIndex+1]); //get reference for signal
+                if (nextSignal==null) { //not defined source signal
+
+                    System.err.println("Operation on not defined signal");
+                    System.exit(1);
+                } else {
+                    
+                    var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
+                    var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
+                    var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
+                        new Bit(newTargetName, newTargetDimension) :
+                        new StdLogic(newTargetName, newTargetDimension);
+                    auxSignals.add(newTarget); //add new target signal to list of declared signals
+                    System.out.println("Added new signal");
+
+                        eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
+                    new BitEvent((Bit)null, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
+                    new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
                 }
             }
         }

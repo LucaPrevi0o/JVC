@@ -3,7 +3,7 @@ signal a, b, c, d, e, f: bit_vector(3 downto 1);
 
 b <= "011";
 c <= "001";
-a <= ((b and c) and f) or (a and b);
+a <= ((b and c) and f) or not a and b;
 sigA <= "110";
 sigB <= "001";
 sigC <= sigA and sigB;
