@@ -175,213 +175,114 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         return null; //failsafe for checking errors
     }
 
-    //you stay here until debug is done, but i need to do you again
-    //and this time i will work backwards
-    //because last time i worked backwards everything went smooth af
-    private static ArrayList<Event> evalExpression(String[] line, int depth) { //evaluation of single expression
+    public static String[] generateExpression(Signal target, int delay, int index, String[] line) { //generate string for nested expression
 
-        System.out.println("Starting expression evaluation");
-        var eventList=new ArrayList<Event>(); //declare new list to add
-        var state=0; //start from first token
-        var exprTarget=getByName(line[state++]); //get target of assignment expression
-        if (exprTarget==null) { //signal name not recognized
+        System.out.println("Found nested expression");
+        System.out.println("First token to check: "+line[index]);
+        var brackets=0; //count the open/closed brackets (need to be equal)
+        var newExpr=new ArrayList<String>(); //generate new expression to evaluate
+        var counter=(line[index].equals(")") ? -1 : 1); //check for upstream/downstream expression construction
+
+        newExpr.add(target.getName()); //initialize expression with new target
+        newExpr.add("<=");
+
+        do { //loop over the entire nested expression
+
+            System.out.println("Checking new token: \""+line[index+=counter]+"\"");
+            if (line[index].equals("<=") || line[index].equals(";")) { //detect end of line before closing bracket
+
+                System.err.println("Extraneous bracket");
+                System.exit(1);
+            } else {
+                
+                if (line[index].equals(counter<0 ? ")" : "(")) brackets++; //check number of open/closed brackets to be equal
+                else if (line[index].equals(counter<0 ? "(" : ")")) brackets--;
+                if (brackets!=0) newExpr.add(line[index]); //add token to expression to be parsed
+            }
+        } while (brackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finishedù
+
+        newExpr.add("after"); //set time delay and closing token for nested operation
+        newExpr.add(""+delay);
+        newExpr.add(";");
+
+        var res=new String[newExpr.size()]; //generate string array with parsed tokens
+        return newExpr.toArray(res); //return list converted to array
+    }
+
+    public static ArrayList<Event> newEvalLine(int depth, String[] line) { //evaluate process
+
+        var state=line.length-1; //state for line evaluation
+        var eventList=new ArrayList<Event>();
+        var target=getByName(line[0]);
+        if (target==null) {
 
             System.err.println("Assignment on not declared signal");
             System.exit(1);
-        } else if (!line[state++].equals("<=")) { //missing operator
+        } else if (!line[1].equals("<=")) {
 
             System.err.println("Missing assignment operator");
             System.exit(1);
-        } else for (var tokenIndex=state; tokenIndex<line.length && !line[tokenIndex].equals(";"); tokenIndex++) { //evaluation of assignment expression
+        } else if (!isNumber(line[--state])) { //check for valid time delay
 
-            var currentToken=line[tokenIndex]; //check current token in expression
-            System.out.println("Checking next token: \""+currentToken+"\"");
-            if (currentToken.equals("(")) { //evaluate bracketed nested expression
+            System.err.println("Missing time delay for operation");
+            System.exit(1);
+        } else if (!line[--state].equals("after")) { //keyword for time delay declaration
 
-                System.out.println("New nested expression found");
-                var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
-                var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
-                    new Bit(newTargetName, newTargetDimension) :
-                    new StdLogic(newTargetName, newTargetDimension);
-                auxSignals.add(newTarget); //add new target signal to list of declared signals
-                System.out.println("Added new signal");
+            System.err.println("Missing time delay declaration");
+            System.exit(1);
+        } else {
 
-                var newExpression=new ArrayList<String>(); //generate new expression to be parsed
-                newExpression.add(newTargetName); //add target
-                newExpression.add("<="); //add assignment operator
-                System.out.println("Initialized new expression");
+            var timeDelay=Integer.parseInt(line[state+1]); //time delay set for assignment
+            for (var tokenIndex=state; !line[tokenIndex].equals("<="); tokenIndex--) { //loop pver every token
 
-                var openBrackets=1; //count number of open brackets
-                var nestedTokenIndex=tokenIndex; //start loop at current index
-                do { //loop over the entire nested expression
+                var currentToken=line[tokenIndex];
+                System.out.println("Starting from: "+currentToken);
+                if (isBinaryOperator(currentToken)) { //check for current token to be a valid binary operation
 
-                    System.out.println("Checking new token: \""+line[++nestedTokenIndex]+"\"");
-                    if (line[nestedTokenIndex].equals(";")) { //detect end of line before closing bracket
-
-                        System.err.println("Missing closing bracket");
-                        System.exit(1);
-                    } else {
-                        
-                        if (line[nestedTokenIndex].equals("(")) openBrackets++; //check number of open/closed brackets to be equal
-                        else if (line[nestedTokenIndex].equals(")")) openBrackets--;
-                        if (openBrackets!=0) newExpression.add(line[nestedTokenIndex]); //add token to expression to be parsed
-                    }
-                } while (openBrackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finished
-
-                System.out.println("Expression terminated with "+newExpression.size()+" tokens");
-                for (var s: newExpression) System.out.println("Token: \""+s+"\"");
-                var newParsableExpr=new String[newExpression.size()]; //create array to parse new expression
-                newExpression.toArray(newParsableExpr); //pass list into array elements
-                System.out.println("Preparing expression for evaluation");
-                eventList.addAll(evalExpression(newParsableExpr, depth+1)); //add every new event in nested assignment into the event list
-                System.out.println("Event list has now size "+eventList.size());
-                tokenIndex=nestedTokenIndex; //skip every token inside nested expression
-            } else if (isBinaryOperator(currentToken)) { //next token is binary operation
-
-                System.out.println("Found binary operation");
-                var prevToken=line[tokenIndex-1]; //get names of operands for current binary operation
-                var nextToken=line[tokenIndex+1];
-                Signal prevSignal=null, nextSignal=null; //save results as signals
-                if ((prevSignal=getByName(prevToken))!=null) System.out.println("Previous token is valid signal");
-                else if (prevToken.equals(")")) {
+                    System.out.println("Found binary operator");
+                    var prevToken=line[tokenIndex-1];
+                    var nextToken=line[tokenIndex+1];
+                    Signal prevSignal=null, nextSignal=null;
                     
-                    System.out.println("Previous token is result of nested expression\nCurrent event list size: "+eventList.size());
-                    prevSignal=(Signal)auxSignals.getLast(); //the last event in list will always be either a valid name or the result of nested expression
-                }
-
-                if ((nextSignal=getByName(nextToken))!=null) System.out.println("Next token is valid signal");
-                else if (nextToken.equals("(")) { //evaluate bracketed nested expression (TODO: avoid copy-paste of a dgjillion lines of code)
-
-                    System.out.println("New nested expression found");
                     var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                    var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
-                    var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
+                    var newTargetDimension=target.getDimension(); //new target has the same length as assignment target
+                    var newTarget=target.getSignalType().equals(Bit.class) ?
                         new Bit(newTargetName, newTargetDimension) :
                         new StdLogic(newTargetName, newTargetDimension);
                     auxSignals.add(newTarget); //add new target signal to list of declared signals
                     System.out.println("Added new signal");
-    
-                    var newExpression=new ArrayList<String>(); //generate new expression to be parsed
-                    newExpression.add(newTargetName); //add target
-                    newExpression.add("<="); //add assignment operator
-                    System.out.println("Initialized new expression");
-    
-                    var openBrackets=1; //count number of open brackets
-                    var nestedTokenIndex=tokenIndex+1; //start loop at current index
-                    do { //loop over the entire nested expression
-    
-                        System.out.println("Checking new token: \""+line[++nestedTokenIndex]+"\"");
-                        if (line[nestedTokenIndex].equals(";")) { //detect end of line before closing bracket
-    
-                            System.err.println("Missing closing bracket");
-                            System.exit(1);
-                        } else {
-                            
-                            if (line[nestedTokenIndex].equals("(")) openBrackets++; //check number of open/closed brackets to be equal
-                            else if (line[nestedTokenIndex].equals(")")) openBrackets--;
-                            if (openBrackets!=0) newExpression.add(line[nestedTokenIndex]); //add token to expression to be parsed
-                        }
-                    } while (openBrackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finished
-    
-                    System.out.println("Expression terminated with "+newExpression.size()+" tokens");
-                    for (var s: newExpression) System.out.println("Token: \""+s+"\"");
-                    var newParsableExpr=new String[newExpression.size()]; //create array to parse new expression
-                    newExpression.toArray(newParsableExpr); //pass list into array elements
-                    System.out.println("Preparing expression for evaluation");
-                    eventList.addAll(evalExpression(newParsableExpr, depth+1)); //add every new event in nested assignment into the event list
-                    System.out.println("Event list has now size "+eventList.size());
-                    tokenIndex=nestedTokenIndex; //skip every token inside nested expression
-                    nextSignal=(Signal)eventList.getLast().getTarget(); //set next signal for operation as result of nested expression
-                } else if (nextToken.equals("not")) { //not operation
+                    
+                    if ((prevSignal=getByName(prevToken))!=null) System.out.println("First operand is signal");
+                    else if (prevToken.equals(")")) {
 
-                    System.out.println("Found not operation");
-                    nextSignal=getByName(line[tokenIndex+1]); //get reference for signal
-                    if (nextSignal==null) { //not defined source signal
-    
-                        System.err.println("Operation on not defined signal");
-                        System.exit(1);
-                    } else {
-                        
-                        var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                        var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
-                        var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
-                            new Bit(newTargetName, newTargetDimension) :
-                            new StdLogic(newTargetName, newTargetDimension);
-                        auxSignals.add(newTarget); //add new target signal to list of declared signals
-                        System.out.println("Added new signal");
-    
-                            eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-                        new BitEvent((Bit)null, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
-                        new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
+                        System.out.println("First operand is result of expression");
+                        var newLine=generateExpression(newTarget, timeDelay, tokenIndex, line);
+                        eventList.addAll(newEvalLine(depth+1, newLine));
+                        tokenIndex-=newLine.length;
+                        prevSignal=(Signal)eventList.getLast().getTarget();
                     }
-                }
-
-                var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
-                var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
-                    new Bit(newTargetName, newTargetDimension) :
-                    new StdLogic(newTargetName, newTargetDimension);
-                auxSignals.add(newTarget); //add new target signal to list of declared signals
-                System.out.println("Added new signal");
-
-                if (prevSignal!=null && nextSignal!=null) eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-                    new BitEvent((Bit)prevSignal, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
-                    new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
-                else {
-
-                    System.err.println("Operation on not assigned signal");
-                    System.exit(1);
-                }
-            } else if (isBinary(currentToken)) { //direct assignment
-
-                System.out.println("Found direct assignment");
-                if (!line[tokenIndex+1].equals(";")) { //invalid token after assignment string
-
-                    System.err.println("Unexpected token after direct assignment");
-                    System.exit(1);
-                } else if (exprTarget.getDimension()!=getBinarySize(currentToken)) { //not corresponding size for target
-
-                    System.err.println("Assignment string with incorrect size");
-                    System.exit(1);
-                } else { //valid assignment for current signal
                     
-                    eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-                        new BitEvent((Bit)null, (Bit)null, (Bit)exprTarget, currentToken, 0) :
-                        new StdLogicEvent((StdLogic)null, (StdLogic)null, (StdLogic)exprTarget, currentToken, 0));
-                    return eventList; //break early (no other elements can be added after direct assignment)
-                }
-            } else if (currentToken.equals("not")) { //not operation
+                    if ((nextSignal=getByName(nextToken))!=null) System.out.println("Second operand is signal");
+                    else if (nextToken.equals("(")) {
 
-                System.out.println("Found not operation");
-                var nextSignal=getByName(line[tokenIndex+1]); //get reference for signal
-                if (nextSignal==null) { //not defined source signal
+                        System.out.println("Second operand is result of expression");
+                        var newLine=generateExpression(newTarget, timeDelay, tokenIndex, line);
+                        eventList.addAll(newEvalLine(depth+1, newLine));
+                        tokenIndex-=newLine.length;
+                        nextSignal=(Signal)eventList.getLast().getTarget();
+                    }
 
-                    System.err.println("Operation on not defined signal");
-                    System.exit(1);
-                } else {
-                    
-                    var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                    var newTargetDimension=exprTarget.getDimension(); //new target has the same length as assignment target
-                    var newTarget=exprTarget.getSignalType().equals(Bit.class) ?
-                        new Bit(newTargetName, newTargetDimension) :
-                        new StdLogic(newTargetName, newTargetDimension);
-                    auxSignals.add(newTarget); //add new target signal to list of declared signals
-                    System.out.println("Added new signal");
+                    if (!nextSignal.getSignalType().equals(target.getSignalType()) || !prevSignal.getSignalType().equals(target.getSignalType())) {
 
-                        eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-                    new BitEvent((Bit)null, (Bit)nextSignal, (Bit)newTarget, currentToken, 0) :
-                    new StdLogicEvent((StdLogic)null, (StdLogic)nextSignal, (StdLogic)newTarget, currentToken, 0));
-                }
+                        System.err.println("Type mismatch in binary operation");
+                        System.exit(1);
+                    } else eventList.add(target.getSignalType().equals(Bit.class) ? 
+                        new BitEvent((Bit)prevSignal, (Bit)nextSignal, (Bit)auxSignals.getLast(), currentToken, timeDelay) :
+                        new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)auxSignals.getLast(), currentToken, timeDelay));
+                } else System.out.println("Skipped");
             }
         }
-
-        System.out.println("Evaluation terminated in expression");
-        eventList.add(exprTarget.getSignalType().equals(Bit.class) ? 
-            new BitEvent((Bit)null, (Bit)auxSignals.getLast(), (Bit)exprTarget, "copy", 0) :
-            new StdLogicEvent((StdLogic)null, (StdLogic)auxSignals.getLast(), (StdLogic)exprTarget, "copy", 0));
-        System.out.println("Event list of this expression has size "+eventList.size());
-        return eventList;
+        return null;
     }
 
     public static void parse(String fileName) { //parse every line of the file
@@ -399,7 +300,7 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
             } else {
                 
                 if (firstToken.equals("signal")) signals.addAll(declare(lineToken));
-                else events.addAll(evalExpression(lineToken, 0));
+                else events.addAll(newEvalLine(0, lineToken));
             }
         }
     }   
