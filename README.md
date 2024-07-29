@@ -4,7 +4,9 @@
 ### Project details
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
 This allows you to parse `.vhd` files and extract a full simulation of the project.<br>
-Future developments will aim to implement `entity` instantiation, `process` simulation and multiple file integration for larger projects, in order to allow complex design and advanced simulation to be compiled and run simply, efficiently and in every development environment.
+
+>[!IMPORTANT]
+> This version is currently work in progress. Future developments will aim to implement `entity` instantiation, `process` simulation and multiple file integration for larger projects, in order to allow complex design and advanced simulation to be compiled and run simply, efficiently and in every development environment. Read the [User Guide](./USER-GUIDE.md) for more informations about the state of development.
 
 <hr>
 
@@ -28,19 +30,19 @@ You should get the simulation dump in your terminal, if everything worked succes
 ## Changelog
 This is the changelog list of every official release for this project. Latest release: ***Alpha v1.2.1 (pre-release)***
 
-### Alpha v1.0 (pre-release)
+### [Alpha v1.0](https://github.com/LucaPrevi0o/JVC/releases/tag/pre-release-v1.0) (pre-release)
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Initial release.
 
-### Alpha v1.1 (pre-release)
+### [Alpha v1.1](https://github.com/LucaPrevi0o/JVC/releases/tag/pre-release-v1.1) (pre-release)
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Added multiple bit signals support.
 * Added bracket inline priority operations.
 * Removed time chaining between events.
 
-### Alpha v1.2 (pre-release)
+### [Alpha v1.2](https://github.com/LucaPrevi0o/JVC/releases/tag/pre-release-v1.2) (pre-release)
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Major rework of line parsing process.
@@ -50,7 +52,7 @@ This is the changelog list of every official release for this project. Latest re
     * Inline comments after line are not supported yet.
 * Removed `xor`, `nand`, `nor` and `xnor` operations. Added `not` operation.
 
-### Alpha v1.2.1 (pre-release)
+### [Alpha v1.2.1](https://github.com/LucaPrevi0o/JVC/releases/tag/pre-release-v1.2.1) (pre-release)
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Added `xor`, `nand` and `nor` operations.
