@@ -1,5 +1,5 @@
 # JVC - Java VHDL Compiler
-## Download version: Alpha v1.2 (pre-release)
+## Download version: Alpha v1.3 (pre-release)
 
 ### Project details
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
@@ -28,7 +28,7 @@ You should get the simulation dump in your terminal, if everything worked succes
 <hr>
 
 ## Changelog
-This is the changelog list of every official release for this project. Download release: ***Alpha v1.2 (pre-release)***
+This is the changelog list of every official release for this project. Download release: ***Alpha v1.3 (pre-release)***
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 
@@ -47,3 +47,14 @@ This is the changelog list of every official release for this project. Download 
 * Added support for single-line comments.
     * Inline comments after line are not supported yet.
 * Removed `xor`, `nand`, `nor` and `xnor` operations. Added `not` operation.
+
+### Alpha v1.2.1 (pre-release)
+* Added `xor`, `nand` and `nor` operations.
+* Removed debug lines in output dump.
+
+### Alpha v1.3 (pre-release)
+* Added simulation integration for `xor`, `nand` and `nor` operations.
+* Added inline operator priority list.
+    * Priority list: `not` > `and`/`nand` > `xor` > `or`/`nor`.
+* Added time delay support for consecutive assignments.
+* Fixed various bugs.
