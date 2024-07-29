@@ -1,7 +1,6 @@
 package jvc.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import jvc.Signal;
 import jvc.runner.BinaryExpression;
 import jvc.runner.Expression;
@@ -152,41 +151,52 @@ public class Parser {
             }
         }
     }
+
+    public static String[] shortenLine(String line[], int i, Signal<? extends Type> signal) {
+        
+        var newLine=new ArrayList<String>();
+        for (var j=0; j<(line[i].equals("not") ? i : i+1); j++) newLine.add(line[j]);
+        newLine.add(signal.getName());
+        for (var j=newLine.size()+(line[i].equals("not") ? 1 : 2); j<line.length; j++) newLine.add(line[j]);
+        return newLine.toArray(new String[newLine.size()]);
+    }
     
     public static String newSignalName() { return signals.size()+"_newS"; }
 
     private static Signal<? extends Type> executeExpressions(String[] line) {
     
-        var total=0;
         for (var i=1; i<line.length-1; i++) if (line[i].equals("not")) {
 
             var a=getByName(line[i+1]);
             var signal=new UnaryExpression(a, line[i]).execute();
             signals.add(signal);
-            total++;
-
-            System.out.println(line[i]+" "+a.getName()+" = "+signal.getName());
+            line=shortenLine(line, i, signal);
         }
 
-        for (var i=1; i<line.length; i++) if (line[i].equals("and")) {
+        for (var i=1; i<line.length; i++) if (line[i].equals("and") || line[i].equals("nand")) {
 
-            var a=(line[i-2].equals("not") ? signals.get(signals.size()-total) : getByName(line[i-1]));
-            var b=(line[i+1].equals("not") ? (line[i-2].equals("not") ? signals.get(signals.size()-total+1) : signals.get(signals.size()-total)) : getByName(line[i+1]));
+            var a=getByName(line[i-1]);
+            var b=getByName(line[i+1]);
             var signal=new BinaryExpression(a, b, line[i]).execute();
             signals.add(signal);
-            total++;
-
-            System.out.println(a.getName()+" "+line[i]+" "+b.getName()+" = "+signal.getName());
+            line=shortenLine(line, i, signal);
         }
 
-        for (var i=1; i<line.length; i++) if (line[i].equals("or")) {
+        for (var i=1; i<line.length; i++) if (line[i].equals("xor")) {
 
-            var a=(line[i-2].equals("not") ? signals.get(signals.size()-total) : getByName(line[i-1]));
-            var b=(line[i+1].equals("not") ? (line[i-2].equals("not") ? signals.get(signals.size()-total+1) : signals.get(signals.size()-total)) : getByName(line[i+1]));
+            var a=getByName(line[i-1]);
+            var b=getByName(line[i+1]);
             var signal=new BinaryExpression(a, b, line[i]).execute();
             signals.add(signal);
+            line=shortenLine(line, i, signal);
+        }
+        
+        for (var i=1; i<line.length; i++) if (line[i].equals("or") || line[i].equals("nor")) {
 
-            System.out.println(a.getName()+" "+line[i]+" "+b.getName()+" = "+signal.getName());
+            var a=getByName(line[i-1]);
+            var b=getByName(line[i+1]);
+            var signal=new BinaryExpression(a, b, line[i]).execute();
+            signals.add(signal);
         }
 
         return signals.getLast();
@@ -269,10 +279,7 @@ public class Parser {
             }
         }
 
-        System.out.println("\nParsing line: "+Arrays.toString(line));
-        var exprResult=executeExpressions(line);
-        System.out.println("Expression result: "+exprResult);
-        return exprResult;
+        return executeExpressions(line);
     }
 
     public static void parse(ArrayList<String[]> file) {
@@ -303,14 +310,12 @@ public class Parser {
                     System.exit(1);
                 } else {
                     
-                    System.out.println("\n--- ---\n\nFound assignment line: "+Arrays.toString(line));
+                    System.out.println("Found assignment line");
                     var res=evalExprLine(line).clone().setName(line[0]);
                     signals.set(getIndexByName(line[0]), res);
 
                     for (var i=signals.size()-1; i>=0; i--)
                         if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
-
-                    //signals.removeLast();
                 }
             }
         }
