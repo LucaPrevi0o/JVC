@@ -49,3 +49,9 @@ This is the changelog list of every official release for this project. Latest re
 * Added support for single-line comments.
     * Inline comments after line are not supported yet.
 * Removed `xor`, `nand`, `nor` and `xnor` operations. Added `not` operation.
+
+### Alpha v1.2.1 (pre-release)
+>[!WARNING]
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
+* Added `xor`, `nand` and `nor` operations.
+* Removed debug lines.
