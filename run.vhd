@@ -1,7 +1,11 @@
-signal a, b, c, d: bit_vector(3 to 9);
-signal e, f: bit;
-signal h1, h2, h3: std_logic_vector ( 9 downto 3);
+-- Example .vhd file for usage demonstration purposes
 
+-- declare a list of signals
+signal a, b, c, d: bit_vector(3 to 9); -- vector with indexes [3:8]
+signal e, f: bit; -- single value
+signal h1, h2, h3: std_logic_vector (9 downto 3); -- vector with indexes [9:4]
+
+-- list of assignment expressions
 h1 <= "001011" after 3 ps;
 f <= not f and (not e and not f) or f after 1 ps;
 e <= not (not f) and  e after 5 ps;
