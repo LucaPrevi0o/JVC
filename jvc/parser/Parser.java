@@ -1,6 +1,8 @@
 package jvc.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import jvc.Signal;
 import jvc.runner.BinaryExpression;
 import jvc.runner.Expression;
@@ -81,6 +83,139 @@ public class Parser {
             reverse=false;
         }
     }
+        
+    public static String newSignalName() { return signals.size()+"_newS"; }
+
+    private class AssignmentLine {
+
+        public static String[] shortenLine(String[] line, int i, Signal<? extends Type> signal) {
+        
+            var newLine=new ArrayList<String>();
+            for (var j=0; j<(line[i].equals("not") ? i : i+1); j++) newLine.add(line[j]);
+            newLine.add(signal.getName());
+            for (var j=newLine.size()+(line[i].equals("not") ? 1 : 2); j<line.length; j++) newLine.add(line[j]);
+            return newLine.toArray(new String[newLine.size()]);
+        }
+    
+        private static Signal<? extends Type> executeExpressions(String[] line) {
+        
+            for (var i=1; i<line.length-1; i++) if (line[i].equals("not")) {
+    
+                var a=getByName(line[i+1]);
+                var signal=new UnaryExpression(a, line[i]).execute();
+                signals.add(signal);
+                line=shortenLine(line, i, signal);
+            }
+    
+            for (var i=1; i<line.length; i++) if (line[i].equals("and") || line[i].equals("nand")) {
+    
+                var a=getByName(line[i-1]);
+                var b=getByName(line[i+1]);
+                var signal=new BinaryExpression(a, b, line[i]).execute();
+                signals.add(signal);
+                line=shortenLine(line, i, signal);
+            }
+    
+            for (var i=1; i<line.length; i++) if (line[i].equals("xor")) {
+    
+                var a=getByName(line[i-1]);
+                var b=getByName(line[i+1]);
+                var signal=new BinaryExpression(a, b, line[i]).execute();
+                signals.add(signal);
+                line=shortenLine(line, i, signal);
+            }
+            
+            for (var i=1; i<line.length; i++) if (line[i].equals("or") || line[i].equals("nor")) {
+    
+                var a=getByName(line[i-1]);
+                var b=getByName(line[i+1]);
+                var signal=new BinaryExpression(a, b, line[i]).execute();
+                signals.add(signal);
+            }
+    
+            return signals.getLast();
+        }
+    
+        private static String[] getInnerExpression(String[] line, int startIndex) {
+    
+            var nestedExpressions=1;
+            var expression=new ArrayList<String>();
+            for (var j=startIndex; nestedExpressions!=0; j++) {
+    
+                if (line[j].equals("(")) nestedExpressions++;
+                else if (line[j].equals(")")) nestedExpressions--;
+                expression.add(line[j]);
+    
+                if (line[j].equals("after")) {
+    
+                    System.err.println("Found non-closed bracket");
+                    System.exit(1);
+                }
+            }
+    
+            expression.removeLast();
+            return expression.toArray(new String[expression.size()]);
+        }
+    
+        private static Signal<? extends Type> evalInnerExpression(String[] line) {
+    
+            var newLine=new ArrayList<String>();
+            newLine.add("test");
+            newLine.add("<=");
+    
+            for (var i=0; i<line.length; i++) newLine.add(line[i]);
+            newLine.add("after");
+            newLine.add(""+0);
+            newLine.add("s");
+            newLine.add(";");
+    
+            return evalExprLine(newLine.toArray(new String[newLine.size()]));
+        }    
+    
+        private static Signal<? extends Type> evalExprLine(String[] line) {
+    
+            if (!line[1].equals("<=")) {
+    
+                System.err.println("Missing assignment token");
+                System.exit(1);
+            } else if (!isNumber(line[line.length-3]) || !line[line.length-4].equals("after")) {
+    
+                System.err.println("Missing assignment delay");
+                System.exit(1);
+            }
+    
+            if (isBinary(line[2])) {
+    
+                if (line.length!=7) {
+    
+                    System.err.println("Error in assignment line");
+                    System.exit(1);
+                }
+    
+                signals.set(getIndexByName(line[0]), Signal.assign(getByName(line[0]), line[2]).setName(line[0]));
+                return getByName(line[0]);
+            }
+    
+            for (var k=2; k<line.length && !line[k].equals("after"); k++) {
+    
+                if (line[k].equals("(")) {
+                    
+                    var newLine=getInnerExpression(line, k+1);
+                    var reducedLine=new ArrayList<String>();
+    
+                    for (var j=0; j<k; j++) reducedLine.add(line[j]);
+                    var newResult=evalInnerExpression(newLine);
+                    signals.add(newResult);
+    
+                    reducedLine.add(newResult.getName());
+                    for (var j=reducedLine.size()+newLine.length+1; j<line.length; j++) reducedLine.add(line[j]);
+                    line=reducedLine.toArray(new String[reducedLine.size()]);
+                }
+            }
+    
+            return executeExpressions(line);
+        }
+    }
     
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
     private static ArrayList<Expression> expressions=new ArrayList<Expression>();
@@ -152,136 +287,6 @@ public class Parser {
         }
     }
 
-    public static String[] shortenLine(String line[], int i, Signal<? extends Type> signal) {
-        
-        var newLine=new ArrayList<String>();
-        for (var j=0; j<(line[i].equals("not") ? i : i+1); j++) newLine.add(line[j]);
-        newLine.add(signal.getName());
-        for (var j=newLine.size()+(line[i].equals("not") ? 1 : 2); j<line.length; j++) newLine.add(line[j]);
-        return newLine.toArray(new String[newLine.size()]);
-    }
-    
-    public static String newSignalName() { return signals.size()+"_newS"; }
-
-    private static Signal<? extends Type> executeExpressions(String[] line) {
-    
-        for (var i=1; i<line.length-1; i++) if (line[i].equals("not")) {
-
-            var a=getByName(line[i+1]);
-            var signal=new UnaryExpression(a, line[i]).execute();
-            signals.add(signal);
-            line=shortenLine(line, i, signal);
-        }
-
-        for (var i=1; i<line.length; i++) if (line[i].equals("and") || line[i].equals("nand")) {
-
-            var a=getByName(line[i-1]);
-            var b=getByName(line[i+1]);
-            var signal=new BinaryExpression(a, b, line[i]).execute();
-            signals.add(signal);
-            line=shortenLine(line, i, signal);
-        }
-
-        for (var i=1; i<line.length; i++) if (line[i].equals("xor")) {
-
-            var a=getByName(line[i-1]);
-            var b=getByName(line[i+1]);
-            var signal=new BinaryExpression(a, b, line[i]).execute();
-            signals.add(signal);
-            line=shortenLine(line, i, signal);
-        }
-        
-        for (var i=1; i<line.length; i++) if (line[i].equals("or") || line[i].equals("nor")) {
-
-            var a=getByName(line[i-1]);
-            var b=getByName(line[i+1]);
-            var signal=new BinaryExpression(a, b, line[i]).execute();
-            signals.add(signal);
-        }
-
-        return signals.getLast();
-    }
-
-    private static String[] getInnerExpression(int startIndex, String[] line) {
-
-        var nestedExpressions=1;
-        var expression=new ArrayList<String>();
-        for (var j=startIndex; nestedExpressions!=0; j++) {
-
-            if (line[j].equals("(")) nestedExpressions++;
-            else if (line[j].equals(")")) nestedExpressions--;
-            expression.add(line[j]);
-
-            if (line[j].equals("after")) {
-
-                System.err.println("Found non-closed bracket");
-                System.exit(1);
-            }
-        }
-
-        expression.removeLast();
-        return expression.toArray(new String[expression.size()]);
-    }
-
-    private static Signal<? extends Type> evalInnerExpression(String[] line) {
-
-        var newLine=new ArrayList<String>();
-        newLine.add("test");
-        newLine.add("<=");
-
-        for (var i=0; i<line.length; i++) newLine.add(line[i]);
-        newLine.add("after");
-        newLine.add(""+0);
-        newLine.add("s");
-        newLine.add(";");
-
-        return evalExprLine(newLine.toArray(new String[newLine.size()]));
-    }
-
-    private static Signal<? extends Type> evalExprLine(String[] line) {
-
-        if (!line[1].equals("<=")) {
-
-            System.err.println("Missing assignment token");
-            System.exit(1);
-        } else if (!isNumber(line[line.length-3]) || !line[line.length-4].equals("after")) {
-
-            System.err.println("Missing assignment delay");
-            System.exit(1);
-        }
-
-        if (isBinary(line[2])) {
-
-            if (line.length!=7) {
-
-                System.err.println("Error in assignment line");
-                System.exit(1);
-            }
-
-            signals.set(getIndexByName(line[0]), Signal.assign(getByName(line[0]), line[2]).setName(line[0]));
-            return getByName(line[0]);
-        }
-
-        for (var k=2; k<line.length && !line[k].equals("after"); k++) {
-
-            if (line[k].equals("(")) {
-                
-                var newLine=getInnerExpression(k+1, line);
-                var reducedLine=new ArrayList<String>();
-
-                for (var j=0; j<k; j++) reducedLine.add(line[j]);
-                var newResult=evalInnerExpression(newLine);
-                signals.add(newResult);
-
-                reducedLine.add(newResult.getName());
-                for (var j=reducedLine.size()+newLine.length+1; j<line.length; j++) reducedLine.add(line[j]);
-                line=reducedLine.toArray(new String[reducedLine.size()]);
-            }
-        }
-
-        return executeExpressions(line);
-    }
-
     public static void parse(ArrayList<String[]> file) {
 
         for (var line: file) {
@@ -311,7 +316,7 @@ public class Parser {
                 } else {
                     
                     System.out.println("Found assignment line");
-                    var res=evalExprLine(line).clone().setName(line[0]);
+                    var res=AssignmentLine.evalExprLine(line).clone().setName(line[0]);
                     signals.set(getIndexByName(line[0]), res);
 
                     for (var i=signals.size()-1; i>=0; i--)
