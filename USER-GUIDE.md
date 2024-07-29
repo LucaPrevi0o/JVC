@@ -8,7 +8,7 @@ This guide implements a list of supported VHDL features included in latest versi
     * For now, every file *must* contain just a single list of declared `signal` elements, and use only these signals after they get declared.
     * It is not possible to assign value to a signal which is not declared before, although it is possible to insert new declarations after an assignment block.
 
-* Operations allowed are: `and`, `or`, `xor`, `nand`, `nor` and `not`. Brackets are supported for operation priority during assignment.
+* Operations allowed are: `and`, `or`, `xor`, `nand`, `nor` and `not`. Brackets are supported for operation priority during assignment, otherwise the following priority chain is followed: `not` > `and`/`nand` > `xor` > `or`/`nor`.
 
 * Direct assignment by the `<=` operator is permitted. Assignment for both single-bit and multiple-bit signals is implemented, with check for incorrect size initializer strings for every signal.
     * Not unary nor binary operations support immediate value for operations; only signal values are allowed.
