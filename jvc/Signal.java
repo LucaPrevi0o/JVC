@@ -1,0 +1,71 @@
+package jvc;
+
+import jvc.parser.Parser;
+import jvc.signalType.Type;
+
+public class Signal<T extends Type> {
+    
+    private String name;
+    private T[] value;
+    private int[] indexes;
+
+    public String getName() { return this.name; }
+    public T[] getValue() { return this.value; }
+    public int[] getIndexes() { return this.indexes; }
+
+    public Signal<T> setName(String name) { this.name=name; return this; }
+    public Signal<T> clone() { return new Signal<T>(this.name, this.value, this.indexes); }
+
+    public String toString() {
+        
+        var res=this.name+": "+this.value[0].getClass().getSimpleName()+"["+this.value.length+"]: { ";
+        for (var i=0; i<this.value.length; i++) res+=(this.value.length>1 ? "("+this.indexes[i]+")" : "")+this.value[i]+" ";
+        return res+"}";
+    }
+
+    public static Signal<? extends Type> execute(Signal<? extends Type> signal1, Signal<? extends Type> signal2, String opName) {
+
+        if (signal1.indexes.length!=signal2.indexes.length) {
+
+            System.err.println("Index length mismatch in operation");
+            System.exit(1);
+        }
+
+        for (var i=0; i<signal1.indexes.length; i++) if (signal1.indexes[i]!=signal2.indexes[i]) {
+
+            System.err.println("Index mismatch in operation");
+            System.exit(1);
+        }
+        
+        var indexes=signal2.indexes.clone();
+        var data=Type.execute(signal1.value, signal2.value, indexes, opName);
+        return new Signal<>(Parser.newSignalName(), data, indexes);
+    }
+
+    public static Signal<? extends Type> assign(Signal<? extends Type> signal, String data) {
+
+        if (signal.value.length!=data.length()-2) {
+
+            System.err.println("Length mismatch in assignment");
+            System.exit(1);
+        }
+
+        var newData=Type.assign(signal.value, data);
+        var indexes=signal.indexes.clone();
+        return new Signal<>(Parser.newSignalName(), newData, indexes);
+    }
+
+    public Signal(String name, T[] value, int[] indexes) {
+
+        this.name=name;
+        this.value=value;
+        this.indexes=indexes;
+    }
+
+    public Signal(String name, T[] value) {
+
+        this.name=name;
+        this.value=value;
+        this.indexes=new int[this.value.length];
+    }
+}

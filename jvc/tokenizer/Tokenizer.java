@@ -1,4 +1,4 @@
-package jvc;
+package jvc.tokenizer;
 import java.io.*;
 import java.util.*;
 
@@ -20,7 +20,7 @@ public class Tokenizer {
                 else if (textLine.equals("")) continue; //skip empty lines
                 else {
 
-                    var n=textLine.split("[ \n]+|((?<![ \n])((?=[,;:()])|(?<=[,;:()])))"); //split every token
+                    var n=textLine.split("[ \n]+|((?<=-{2})(?=))|((?<![ \n])((?=[,;:()<])|(?<=[,;:()=])))"); //split every token
                     globalTokens.add(n); //add new tokenized line to list of tokens
                 }
             } while (textLine!=null); //scan every line untile EOF
@@ -30,4 +30,6 @@ public class Tokenizer {
             System.exit(1);
         }
     }
+
+    public static boolean parseName(String signalName) { return signalName.matches("[a-zA-Z][a-zA-Z0-9_]*"); }
 }

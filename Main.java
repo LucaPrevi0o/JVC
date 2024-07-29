@@ -1,4 +1,5 @@
-import jvc.*;
+import jvc.parser.Parser;
+import jvc.tokenizer.Tokenizer;
 
 public class Main {
     
@@ -6,18 +7,24 @@ public class Main {
         
         if (args.length!=1) {
 
-            System.err.println("File name expected");
+            System.err.println("Required file name");
             System.exit(1);
-        } else {
-            
-            System.out.print("Parsing... ");
-            FileParser.parse(args[0]);
-            var signals=FileParser.getSignals();
-            System.out.println("Done!\nTotal signals: "+signals.size()+":\n");
-            for (var s: signals) System.out.println(s);
-            System.out.println("\n--- --- ---\n\nRunning...\n");
-            Runner.run();
-            System.out.println("Done!");
         }
+
+        System.out.print("Tokenization...\n\n");
+        Tokenizer.tokenize(args[0]);
+        for (var line: Tokenizer.getGlobalTokens()) {
+            
+            System.out.print("New line - { ");
+            for (var token: line) System.out.print("'"+token+"' ");
+            System.out.println("}");
+        }
+
+        System.out.println("\nDone!\n\n--- ---\n");
+        System.out.print("Parsing... ");
+        Parser.parse(Tokenizer.getGlobalTokens());
+        System.out.println("Done!\n\n--- ---\n");
+
+        for (var s: Parser.getSignals()) System.out.println(s);
     }
 }
