@@ -26,10 +26,25 @@ public interface Type {
                     if (a[index] instanceof Bit && b[index] instanceof Bit) res[index]=(a[index].equals(Bit.TRUE) && b[index].equals(Bit.TRUE) ? Bit.TRUE : Bit.FALSE);
                     else if (a[index] instanceof StdLogic && b[index] instanceof StdLogic) res[index]=(a[index].equals(StdLogic.T) && b[index].equals(StdLogic.T) ? StdLogic.T : StdLogic.F);
                     else res[index]=null;
+                } else if (opName.equals("nand")) {
+                    
+                    if (a[index] instanceof Bit && b[index] instanceof Bit) res[index]=(!(a[index].equals(Bit.TRUE) || b[index].equals(Bit.TRUE)) ? Bit.TRUE : Bit.FALSE);
+                    else if (a[index] instanceof StdLogic && b[index] instanceof StdLogic) res[index]=(!(a[index].equals(StdLogic.T) || b[index].equals(StdLogic.T)) ? StdLogic.T : StdLogic.F);
+                    else res[index]=null;
                 } else if (opName.equals("or")) {
                     
                     if (a[index] instanceof Bit && b[index] instanceof Bit) res[index]=(a[index].equals(Bit.TRUE) || b[index].equals(Bit.TRUE) ? Bit.TRUE : Bit.FALSE);
                     else if (a[index] instanceof StdLogic && b[index] instanceof StdLogic) res[index]=(a[index].equals(StdLogic.T) || b[index].equals(StdLogic.T) ? StdLogic.T : StdLogic.F);
+                    else res[index]=null;
+                } else if (opName.equals("nor")) {
+                    
+                    if (a[index] instanceof Bit && b[index] instanceof Bit) res[index]=(!(a[index].equals(Bit.TRUE) && b[index].equals(Bit.TRUE)) ? Bit.TRUE : Bit.FALSE);
+                    else if (a[index] instanceof StdLogic && b[index] instanceof StdLogic) res[index]=(!(a[index].equals(StdLogic.T) && b[index].equals(StdLogic.T)) ? StdLogic.T : StdLogic.F);
+                    else res[index]=null;
+                } else if (opName.equals("xor")) {
+                    
+                    if (a[index] instanceof Bit && b[index] instanceof Bit) res[index]=(a[index].equals(Bit.TRUE) ^ b[index].equals(Bit.TRUE) ? Bit.TRUE : Bit.FALSE);
+                    else if (a[index] instanceof StdLogic && b[index] instanceof StdLogic) res[index]=(a[index].equals(StdLogic.T) ^ b[index].equals(StdLogic.T) ? StdLogic.T : StdLogic.F);
                     else res[index]=null;
                 } else if (opName.equals("not")) {
 
@@ -54,7 +69,6 @@ public interface Type {
         var newData=new Type[value.length];
         for (var i=1; i<data.length()-1; i++) {
 
-            System.out.println("char at "+i+" is "+data.charAt(i)+" - value["+(i-1)+"] is "+value[i-1]);
             if (data.charAt(i)=='X' && value[i-1] instanceof StdLogic) newData[i-1]=StdLogic.X;
             else if (data.charAt(i)=='U' && value[i-1] instanceof StdLogic) newData[i-1]=StdLogic.U;
             else if (data.charAt(i)=='1') newData[i-1]=(value[i-1] instanceof Bit ? Bit.TRUE : (value[i-1] instanceof StdLogic ? StdLogic.T : null));
