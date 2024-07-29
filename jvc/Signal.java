@@ -16,9 +16,11 @@ public class Signal<T extends Type> {
     public Signal<T> setName(String name) { this.name=name; return this; }
     public Signal<T> clone() { return new Signal<T>(this.name, this.value, this.indexes); }
 
+    public String display() { return "("+this.value[0].getClass().getSimpleName()+(this.value.length>1 ? "["+this.value.length+"]" : "")+") "+this.name; }
+
     public String toString() {
         
-        var res=this.name+": "+this.value[0].getClass().getSimpleName()+"["+this.value.length+"]: { ";
+        var res=this.display()+": { ";
         for (var i=0; i<this.value.length; i++) res+=(this.value.length>1 ? "("+this.indexes[i]+")" : "")+this.value[i]+" ";
         return res+"}";
     }

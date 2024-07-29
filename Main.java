@@ -23,8 +23,9 @@ public class Main {
         System.out.println("\nDone!\n\n--- ---\n");
         System.out.print("Parsing... ");
         Parser.parse(Tokenizer.getGlobalTokens());
-        System.out.println("Done!\n\n--- ---\n");
+        System.out.println("\n--- ---\n\nDone!\n");
 
+        System.out.println("Simulation complete - Signals:");
         for (var s: Parser.getSignals()) System.out.println(s);
     }
 }

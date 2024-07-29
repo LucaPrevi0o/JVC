@@ -1,8 +1,6 @@
 package jvc.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import jvc.Signal;
 import jvc.runner.BinaryExpression;
 import jvc.runner.Expression;
@@ -20,7 +18,7 @@ public class Parser {
 
         private static void vectorDeclaration(String[] line) {
     
-            if (!isNumber(line[line.length-3])) {
+            if (!isInteger(line[line.length-3])) {
                 
                 System.err.println("Missing second bound");
                 System.exit(1);
@@ -28,7 +26,7 @@ public class Parser {
     
                 System.err.println("Missing vector direction");
                 System.exit(1);
-            } else if (!isNumber(line[line.length-5])) {
+            } else if (!isInteger(line[line.length-5])) {
                 
                 System.err.println("Missing first bound");
                 System.exit(1);
@@ -109,7 +107,7 @@ public class Parser {
     
             for (var i=1; i<line.length; i++) if (line[i].equals("and") || line[i].equals("nand")) {
     
-                var a=getByName(line[i-1]);
+                var a=(getByName(line[i-1]));
                 var b=getByName(line[i+1]);
                 var signal=new BinaryExpression(a, b, line[i]).execute();
                 signals.add(signal);
@@ -117,7 +115,7 @@ public class Parser {
             }
     
             for (var i=1; i<line.length; i++) if (line[i].equals("xor")) {
-    
+
                 var a=getByName(line[i-1]);
                 var b=getByName(line[i+1]);
                 var signal=new BinaryExpression(a, b, line[i]).execute();
@@ -160,7 +158,7 @@ public class Parser {
         private static Signal<? extends Type> evalInnerExpression(String[] line) {
     
             var newLine=new ArrayList<String>();
-            newLine.add("test");
+            newLine.add("temp");
             newLine.add("<=");
     
             for (var i=0; i<line.length; i++) newLine.add(line[i]);
@@ -173,16 +171,6 @@ public class Parser {
         }    
     
         private static Signal<? extends Type> evalExprLine(String[] line) {
-    
-            if (!line[1].equals("<=")) {
-    
-                System.err.println("Missing assignment token");
-                System.exit(1);
-            } else if (!isNumber(line[line.length-3]) || !line[line.length-4].equals("after")) {
-    
-                System.err.println("Missing assignment delay");
-                System.exit(1);
-            }
     
             if (isBinary(line[2])) {
     
@@ -219,16 +207,25 @@ public class Parser {
     
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
     private static ArrayList<Expression> expressions=new ArrayList<Expression>();
+    private static float globalDelay=0;
 
     public static ArrayList<Signal<? extends Type>> getSignals() { return signals; }
     public static ArrayList<Expression> getExpressions() { return expressions; }
 
     private static boolean isBinary(String sequence) { return sequence.matches("\"[01]+\""); }
 
-    private static boolean isNumber(String s) {
+    private static boolean isInteger(String s) {
 
         if (s==null) return false;
         try { Integer.parseInt(s); }
+        catch (Exception e) { return false; }
+        return true;
+    }
+
+    private static boolean isFloat(String s) {
+
+        if (s==null) return false;
+        try { Float.parseFloat(s); }
         catch (Exception e) { return false; }
         return true;
     }
@@ -293,7 +290,7 @@ public class Parser {
 
             if (line[0].equals("--")) {
                 
-                System.out.print("Found comment line: ");
+                System.out.print("\nFound comment line: ");
                 for (var l: line) System.out.print(l+" ");
                 System.out.println();
                 continue;
@@ -303,24 +300,50 @@ public class Parser {
                 System.exit(1);
             } else if (line[0].equals("signal")) {
                 
-                System.out.println("Found signal declaration line");
+                System.out.println("\nFound signal declaration line - Signal list:");
                 DeclarationLine.declare(line);
                 declare(DeclarationLine.names, DeclarationLine.type, DeclarationLine.lowerBound, DeclarationLine.upperBound, DeclarationLine.reverse);
                 DeclarationLine.reset();
+
+                for (var i=0; i<signals.size(); i++) System.out.println("- "+signals.get(i).display());
             } else {
 
                 if (!isSignal(line[0]) || !line[1].equals("<=")) {
 
                     System.err.println("Missing assignment operator");
                     System.exit(1);
+                } else if ((!isInteger(line[line.length-3]) && !isFloat(line[line.length-3])) || !line[line.length-4].equals("after")) {
+        
+                    System.err.println("Missing assignment delay");
+                    System.exit(1);
                 } else {
                     
-                    System.out.println("Found assignment line");
+                    var lineDelay=Float.parseFloat(line[line.length-3]);
+                    if (line[line.length-2].equals("ns")) lineDelay*=1000;
+                    else if (line[line.length-2].equals("us")) lineDelay*=1000*1000;
+                    else if (line[line.length-2].equals("ms")) lineDelay*=1000*1000*1000;
+                    else if (line[line.length-2].equals("s")) lineDelay*=1000*1000*1000*1000;
+                    globalDelay+=lineDelay;
                     var res=AssignmentLine.evalExprLine(line).clone().setName(line[0]);
                     signals.set(getIndexByName(line[0]), res);
 
                     for (var i=signals.size()-1; i>=0; i--)
                         if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
+
+                    var currentDelay=globalDelay;
+                    var currentUnit="ps";
+
+                    while (currentDelay>=1000) {
+
+                        currentDelay/=1000;
+                        if (currentUnit.equals("ps")) currentUnit="ns";
+                        else if (currentUnit.equals("ns")) currentUnit="us";
+                        else if (currentUnit.equals("us")) currentUnit="ms";
+                        else if (currentUnit.equals("ms")) currentUnit="s";
+                    } 
+
+                    System.out.println("\nFound assignment line at time "+currentDelay+" "+currentUnit+" - Signals:");
+                    for (var s: Parser.getSignals()) System.out.println(s);
                 }
             }
         }
