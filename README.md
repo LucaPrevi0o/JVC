@@ -47,4 +47,5 @@ This is the changelog list of every official release for this project. Latest re
 * Fixed multiple bugs in operation priority check.
 * Added ` bit_vector ` and ` std_logic_vector ` type declaration for vector signals.
 * Added support for single-line comments.
+    * Inline comments after line are not supported yet.
 * Removed `xor`, `nand`, `nor` and `xnor` operations. Added `not` operation.
