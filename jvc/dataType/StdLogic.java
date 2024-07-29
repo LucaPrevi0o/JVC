@@ -143,17 +143,16 @@ public class StdLogic implements Signal<StdLogic, StdLogicValue> { //class repre
         return this; //chaining
     }
 
-    public StdLogic copy() {
-
-        StdLogic s=new StdLogic(this.name, this.data.length);
-        s.set(this.data);
-        return s;
-    }
-
     public StdLogic copy(StdLogic other) {
 
         StdLogic s=new StdLogic(other.name, other.data.length);
         s.set(other.data);
+        return s;
+    }
+
+    public StdLogic newOf(String name, StdLogic other) {
+
+        StdLogic s=new StdLogic(name, other.data.length);
         return s;
     }
 

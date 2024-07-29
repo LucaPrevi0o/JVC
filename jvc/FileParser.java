@@ -175,10 +175,11 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
         return null; //failsafe for checking errors
     }
 
-    public static String[] generateExpression(Signal target, int delay, int index, String[] line) { //generate string for nested expression
+    //when a new nested expression with brackets is found in line, it gets converted to a new valid assignment
+    //expression and its value is parseddirectly in order to get a valid reference to its final signal value
+    public static String[] generateExpression(Signal target, int delay, int index, String[] line) {
 
         System.out.println("Found nested expression");
-        System.out.println("First token to check: "+line[index]);
         var brackets=0; //count the open/closed brackets (need to be equal)
         var newExpr=new ArrayList<String>(); //generate new expression to evaluate
         var counter=(line[index].equals(")") ? -1 : 1); //check for upstream/downstream expression construction
@@ -199,19 +200,44 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
                 else if (line[index].equals(counter<0 ? "(" : ")")) brackets--;
                 if (brackets!=0) newExpr.add(line[index]); //add token to expression to be parsed
             }
-        } while (brackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finishedù
+        } while (brackets!=0); //when number of open/closed brackets is equal, the outer nested expression is finished
 
         newExpr.add("after"); //set time delay and closing token for nested operation
         newExpr.add(""+delay);
         newExpr.add(";");
 
+        System.out.println("Finished new expression with total length "+newExpr.size());
+        for (var t: newExpr) System.out.println("Token: "+t);
         var res=new String[newExpr.size()]; //generate string array with parsed tokens
         return newExpr.toArray(res); //return list converted to array
     }
 
+    //every time a new bracket expression is found, it gets firstly parsed as a new valid expression,
+    //then it is evaluated as a new sequence of events, then the reference to the evaluation target of the
+    //parsed expression in the last event is returned as it represents the final value of the expression
+    public static Signal getEvaluation(Signal target, int depth, String[] line, int index, int delay) {
+
+        //return the target in the last already present event as it will be the final result of the expression evaluation
+        return (Signal)newEvalLine(++depth, generateExpression(target, delay, index, line)).getLast().getTarget();
+    }
+
+    //if the current token is a valid signal name, return its signal reference as source for the current operation,
+    //otherwise evaluate the content of the nested expression if found and return its reference instead; if the
+    //current token is neither a valid signal name or a nested expression, it cannot be a valid signal reference
+    public static Signal newOpSource(String[] line, int index, Signal target, int depth, int timeDelay) {
+        
+        if (getByName(line[index])!=null) return getByName(line[index]); //valid signal reference
+        if (line[index].equals(")") || line[index].equals("("))
+            return getEvaluation((target.getSignalType().equals(Bit.class) ? 
+                new Bit(depth+"x"+index, target.getDimension()) :
+                new StdLogic(depth+"x"+index, target.getDimension())), depth, line, index, timeDelay); //evaluation of nested expression
+        return null; //null value for non-valid reference
+    }
+
     public static ArrayList<Event> newEvalLine(int depth, String[] line) { //evaluate process
 
-        var state=line.length-1; //state for line evaluation
+        System.out.println("Line tokens:");
+        for (var token: line) System.out.println(token);
         var eventList=new ArrayList<Event>();
         var target=getByName(line[0]);
         if (target==null) {
@@ -222,64 +248,38 @@ public class FileParser { // implement "? extends Signal/Event" syntax for list 
 
             System.err.println("Missing assignment operator");
             System.exit(1);
-        } else if (!isNumber(line[--state])) { //check for valid time delay
+        } else if (!isNumber(line[line.length-2])) { //check for valid time delay
 
             System.err.println("Missing time delay for operation");
             System.exit(1);
-        } else if (!line[--state].equals("after")) { //keyword for time delay declaration
+        } else if (!line[line.length-3].equals("after")) { //keyword for time delay declaration
 
             System.err.println("Missing time delay declaration");
             System.exit(1);
         } else {
 
-            var timeDelay=Integer.parseInt(line[state+1]); //time delay set for assignment
-            for (var tokenIndex=state; !line[tokenIndex].equals("<="); tokenIndex--) { //loop pver every token
+            var timeDelay=Integer.parseInt(line[line.length-2]); //time delay set for assignment
+            System.out.println("Time delay for assignment: "+timeDelay);
+            for (var state=1; !line[++state].equals("after");) { //loop pver every token
 
-                var currentToken=line[tokenIndex];
-                System.out.println("Starting from: "+currentToken);
-                if (isBinaryOperator(currentToken)) { //check for current token to be a valid binary operation
-
-                    System.out.println("Found binary operator");
-                    var prevToken=line[tokenIndex-1];
-                    var nextToken=line[tokenIndex+1];
-                    Signal prevSignal=null, nextSignal=null;
+                var currentToken=line[state]; //reference to current token in evaluation
+                System.out.println("Evaluating: "+currentToken);
+                if (isBinaryOperator(currentToken)) { //branch evaluation to every new binary operation
                     
-                    var newTargetName=""+depth+"x"+tokenIndex; //generate new target signal name
-                    var newTargetDimension=target.getDimension(); //new target has the same length as assignment target
-                    var newTarget=target.getSignalType().equals(Bit.class) ?
-                        new Bit(newTargetName, newTargetDimension) :
-                        new StdLogic(newTargetName, newTargetDimension);
-                    auxSignals.add(newTarget); //add new target signal to list of declared signals
-                    System.out.println("Added new signal");
+                    System.out.println("Found binary operation");
+                    var firstSource=newOpSource(line, state-1, target, depth, timeDelay);
+                    var secondSource=newOpSource(line, state+1, target, depth, timeDelay);
+
+                    System.out.println("First source: "+firstSource);
+                    System.out.println("Second source: "+secondSource);
                     
-                    if ((prevSignal=getByName(prevToken))!=null) System.out.println("First operand is signal");
-                    else if (prevToken.equals(")")) {
-
-                        System.out.println("First operand is result of expression");
-                        var newLine=generateExpression(newTarget, timeDelay, tokenIndex, line);
-                        eventList.addAll(newEvalLine(depth+1, newLine));
-                        tokenIndex-=newLine.length;
-                        prevSignal=(Signal)eventList.getLast().getTarget();
-                    }
+                    //add to list a new event corresponding to the current binary operation
+                    eventList.add(target.getSignalType().equals(Bit.class) ?
+                        new BitEvent((Bit)firstSource, (Bit)secondSource, (Bit)target, currentToken, timeDelay) :
+                        new StdLogicEvent((StdLogic)firstSource, (StdLogic)secondSource, (StdLogic)target, currentToken, timeDelay));
                     
-                    if ((nextSignal=getByName(nextToken))!=null) System.out.println("Second operand is signal");
-                    else if (nextToken.equals("(")) {
-
-                        System.out.println("Second operand is result of expression");
-                        var newLine=generateExpression(newTarget, timeDelay, tokenIndex, line);
-                        eventList.addAll(newEvalLine(depth+1, newLine));
-                        tokenIndex-=newLine.length;
-                        nextSignal=(Signal)eventList.getLast().getTarget();
-                    }
-
-                    if (!nextSignal.getSignalType().equals(target.getSignalType()) || !prevSignal.getSignalType().equals(target.getSignalType())) {
-
-                        System.err.println("Type mismatch in binary operation");
-                        System.exit(1);
-                    } else eventList.add(target.getSignalType().equals(Bit.class) ? 
-                        new BitEvent((Bit)prevSignal, (Bit)nextSignal, (Bit)auxSignals.getLast(), currentToken, timeDelay) :
-                        new StdLogicEvent((StdLogic)prevSignal, (StdLogic)nextSignal, (StdLogic)auxSignals.getLast(), currentToken, timeDelay));
-                } else System.out.println("Skipped");
+                    System.out.println("Added event");
+                } else continue;
             }
         }
         return null;

@@ -95,17 +95,16 @@ public class Bit implements Signal<Bit, Boolean> { //class representing a signal
         return this; //chaining
     }
 
-    public Bit copy() {
-
-        Bit s=new Bit(this.name, this.data.length);
-        s.set(this.data);
-        return s;
-    }
-
     public Bit copy(Bit other) {
 
         Bit s=new Bit(other.name, other.data.length);
         s.set(other.data);
+        return s;
+    }
+
+    public Bit newOf(String name, Bit other) {
+
+        Bit s=new Bit(name, other.data.length);
         return s;
     }
 
