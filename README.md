@@ -1,5 +1,5 @@
 # JVC - Java VHDL Compiler
-## Latest version: Alpha v1.2.1 (pre-release)
+## Latest version: Alpha v1.3 (pre-release)
 
 ### Project details
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
@@ -29,7 +29,7 @@ You should get the simulation dump in your terminal, if everything worked succes
 
 ## Changelog
 This is the changelog list of every official release for this project.<br>
-* Latest release: ***Alpha v1.2.1 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
+* Latest release: ***Alpha v1.3 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
 
 ### [Alpha v1.0](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.0-alpha) (pre-release)
 >[!WARNING]
@@ -58,3 +58,12 @@ This is the changelog list of every official release for this project.<br>
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Added `xor`, `nand` and `nor` operations.
 * Removed debug lines in output dump.
+
+### [Alpha v1.3](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.3-alpha) (pre-release)
+>[!WARNING]
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
+* Added simulation integration for `xor`, `nand` and `nor` operations.
+* Added inline operator priority list.
+    * Priority list: `not` > `and`/`nand` > `xor` > `or`/`nor`.
+* Added time delay support for consecutive assignments.
+* Fixed various bugs.
