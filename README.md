@@ -5,7 +5,7 @@
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
 This allows you to parse `.vhd` files and extract a full simulation of the project.<br>
 
->[!NOTE]
+>[!IMPORTANT]
 > This version is currently work in progress. Future developments will aim to implement `entity` instantiation, `process` simulation and multiple file integration for larger projects, in order to allow complex design and advanced simulation to be compiled and run simply, efficiently and in every development environment. Read the [User Guide](./USER-GUIDE.md) for more informations about the state of development.
 
 <hr>
