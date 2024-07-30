@@ -67,3 +67,13 @@ This is the changelog list of every official release for this project.<br>
     * Priority list: `not` > `and`/`nand` > `xor` > `or`/`nor`.
 * Added time delay support for consecutive assignments.
 * Fixed various bugs.
+
+### [Alpha v1.3.1](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.3.1-alpha) (pre-release)
+>[!WARNING]
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
+* Updated simulation execution as different modules.
+* Updated direct assignment simulation.
+    * New separated components in simulation allow for indipendent compiling and simulation of the `.vhd` source file.
+    * Simulation phase is now executed after every parsing step is completed on a list of simulation steps for every assignment.
+* Added comments.
+* Updated global command name (`Main` -> `VHDL`).
