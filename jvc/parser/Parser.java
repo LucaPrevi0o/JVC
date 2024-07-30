@@ -192,36 +192,39 @@ public class Parser {
     
                 if (line.length!=7) {
     
-                    //check for correct 
+                    //check for correct syntax in assignment line
                     System.err.println("Error in assignment line");
                     System.exit(1);
                 }
     
+                //executr assignment on signal specified at the start of line
                 signals.set(getIndexByName(line[0]), Signal.assign(getByName(line[0]), line[2]).setName(line[0]));
                 return getByName(line[0]);
             }
     
+            //execute parsing of assignment expression otherwise
             for (var k=2; k<line.length && !line[k].equals("after"); k++) {
     
-                if (line[k].equals("(")) {
+                if (line[k].equals("(")) { //check for nested expressions
                     
-                    var newLine=getInnerExpression(line, k+1);
+                    var newLine=getInnerExpression(line, k+1); //get tokens inside inner expression
                     var reducedLine=new ArrayList<String>();
     
-                    for (var j=0; j<k; j++) reducedLine.add(line[j]);
-                    var newResult=buildLine(newLine);
-                    signals.add(newResult);
+                    for (var j=0; j<k; j++) reducedLine.add(line[j]); //add every token before
+                    var newResult=buildLine(newLine); //get signal result of inner expression evaluation
+                    signals.add(newResult); //add it to signal list
     
-                    reducedLine.add(newResult.getName());
-                    for (var j=reducedLine.size()+newLine.length+1; j<line.length; j++) reducedLine.add(line[j]);
-                    line=reducedLine.toArray(new String[reducedLine.size()]);
+                    reducedLine.add(newResult.getName()); //add name of inner expression signal result as new token
+                    for (var j=reducedLine.size()+newLine.length+1; j<line.length; j++) reducedLine.add(line[j]); //add every token after
+                    line=reducedLine.toArray(new String[reducedLine.size()]); //update line content
                 }
             }
     
-            return executeExpressions(line);
+            return executeExpressions(line); //after every parsing, execute chain of operations in line
         }
     }
     
+    //list of declared signals, runnable expressions and simulation steps
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
     private static ArrayList<Expression> expressions=new ArrayList<Expression>();
     private static ArrayList<Runner> simulation=new ArrayList<Runner>();
@@ -230,9 +233,10 @@ public class Parser {
     public static ArrayList<Expression> getExpressions() { return expressions; }
     public static ArrayList<Runner> getSimulation() { return simulation; }
 
+    //check for a binary assignment string
     private static boolean isBinary(String sequence) { return sequence.matches("\"[01]+\""); }
 
-    private static boolean isInteger(String s) {
+    private static boolean isInteger(String s) { //check for a number parsable string
 
         if (s==null) return false;
         try { Integer.parseInt(s); }
@@ -240,7 +244,7 @@ public class Parser {
         return true;
     }
 
-    private static boolean isFloat(String s) {
+    private static boolean isFloat(String s) { //check for a float parsable string
 
         if (s==null) return false;
         try { Float.parseFloat(s); }
@@ -248,19 +252,19 @@ public class Parser {
         return true;
     }
 
-    private static boolean isSignal(String name) {
+    private static boolean isSignal(String name) { //check for a declared signal by name
 
         for (var s: signals) if (s.getName().equals(name)) return true;
         return false;
     }
 
-    private static Signal<? extends Type> getByName(String name) {
+    private static Signal<? extends Type> getByName(String name) { //return signal searching by name
 
         for (var s: signals) if (s.getName().equals(name)) return s;
         return null;
     }
 
-    public static int getIndexByName(String name) {
+    public static int getIndexByName(String name) { //return signal index in declaration list by name
 
         for (var i=0; i<signals.size(); i++) if (signals.get(i).getName().equals(name)) return i;
         return -1;

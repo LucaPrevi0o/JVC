@@ -67,3 +67,11 @@ This is the changelog list of every official release for this project.<br>
     * Priority list: `not` > `and`/`nand` > `xor` > `or`/`nor`.
 * Added time delay support for consecutive assignments.
 * Fixed various bugs.
+
+### Alpha v1.3.1 (pre-release)
+>[!WARNING]
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
+* Updated simulation execution as different modules.
+    * New separated components in simulation allow for indipendent compiling and simulation of the `.vhd` source file.
+* Added comments.
+* Added custom `.bat` and `.sh` self-contained scripts for quicker building process of the project source.
