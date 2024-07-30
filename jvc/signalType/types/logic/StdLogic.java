@@ -2,8 +2,10 @@ package jvc.signalType.types.logic;
 
 import jvc.signalType.Type;
 
+//std_logic standard type (inherited from std library)
 public final class StdLogic implements Type {
 
+    //data value
     public final static Type T=new StdLogic();
     public final static Type F=new StdLogic();
     public final static Type X=new StdLogic();

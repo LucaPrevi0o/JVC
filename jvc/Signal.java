@@ -3,11 +3,11 @@ package jvc;
 import jvc.parser.Parser;
 import jvc.signalType.Type;
 
-public class Signal<T extends Type> {
+public class Signal<T extends Type> { //signal 
     
-    private String name;
-    private T[] value;
-    private int[] indexes;
+    private String name; //signal name
+    private T[] value; //logical value (can be Bit, StdLogic...)
+    private int[] indexes; //list of indexes for vector
 
     public String getName() { return this.name; }
     public T[] getValue() { return this.value; }
@@ -25,36 +25,38 @@ public class Signal<T extends Type> {
         return res+"}";
     }
 
+    //produce execution of a single operation
     public static Signal<? extends Type> execute(Signal<? extends Type> signal1, Signal<? extends Type> signal2, String opName) {
 
-        if (signal1.indexes.length!=signal2.indexes.length) {
+        if (signal1.indexes.length!=signal2.indexes.length) { //check for signals to have same length
 
             System.err.println("Index length mismatch in operation");
             System.exit(1);
         }
 
-        for (var i=0; i<signal1.indexes.length; i++) if (signal1.indexes[i]!=signal2.indexes[i]) {
+        for (var i=0; i<signal1.indexes.length; i++) if (signal1.indexes[i]!=signal2.indexes[i]) { //check for signals to have same indexes
 
             System.err.println("Index mismatch in operation");
             System.exit(1);
         }
         
-        var indexes=signal2.indexes.clone();
-        var data=Type.execute(signal1.value, signal2.value, indexes, opName);
-        return new Signal<>(Parser.newSignalName(), data, indexes);
+        var indexes=signal2.indexes.clone(); //create list of indexes for result
+        var data=Type.execute(signal1.value, signal2.value, indexes, opName); //calculate data for result (depending on data type)
+        return new Signal<>(Parser.newSignalName(), data, indexes); //create new signal as result
     }
 
+    //assign direct value to signal
     public static Signal<? extends Type> assign(Signal<? extends Type> signal, String data) {
 
-        if (signal.value.length!=data.length()-2) {
+        if (signal.value.length!=data.length()-2) { //check for assignment string to have same length of signal
 
             System.err.println("Length mismatch in assignment");
             System.exit(1);
         }
 
-        var newData=Type.assign(signal.value, data);
-        var indexes=signal.indexes.clone();
-        return new Signal<>(Parser.newSignalName(), newData, indexes);
+        var newData=Type.assign(signal.value, data); //generate data based on assignment string
+        var indexes=signal.indexes.clone(); //create list of indexes
+        return new Signal<>(Parser.newSignalName(), newData, indexes); //return new signal with collected data
     }
 
     public Signal(String name, T[] value, int[] indexes) {

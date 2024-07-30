@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import jvc.Signal;
 import jvc.signalType.Type;
 
+//generic assignment expression
 public abstract class Expression {
 
-    protected String opName="";
+    protected String opName=""; //operator name
 
-    public abstract ArrayList<Signal<? extends Type>> getOperands();
-    public String getOperation() { return opName; }
-    public abstract Signal<? extends Type> execute();
+    public abstract ArrayList<Signal<? extends Type>> getOperands(); //return operands of expression
+    public String getOperation() { return opName; } //return operator name
+    public abstract Signal<? extends Type> execute(); //execute specified operation
 }

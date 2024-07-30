@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import jvc.Signal;
 import jvc.signalType.Type;
 
+//assignment expression for binary operators (and/nand, or/nor, xor)
 public class BinaryExpression extends Expression {
 
     private Signal<? extends Type> firstOp, secOp;

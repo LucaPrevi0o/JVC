@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import jvc.Signal;
 import jvc.signalType.Type;
 
+//assignment expression for unary operators (not)
 public class UnaryExpression extends Expression {
 
     private Signal<? extends Type> op;

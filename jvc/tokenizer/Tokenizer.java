@@ -18,11 +18,7 @@ public class Tokenizer {
                 textLine=reader.readLine(); //read new line from file
                 if (textLine==null) break; //break early
                 else if (textLine.equals("")) continue; //skip empty lines
-                else {
-
-                    var n=textLine.split("[ \n]+|((?<=-{2})(?=))|((?<![ \n])((?=[,;:()<])|(?<=[,;:()=])))"); //split every token
-                    globalTokens.add(n); //add new tokenized line to list of tokens
-                }
+                else globalTokens.add(textLine.split("[ \n]+|((?<=-{2})(?=))|((?<![ \n])((?=[,;:()<])|(?<=[,;:()=])))")); //add new tokenized line to list of tokens
             } while (textLine!=null); //scan every line untile EOF
         } catch (Exception e) {
 
@@ -31,5 +27,6 @@ public class Tokenizer {
         }
     }
 
+    //check for a signal name to be valid
     public static boolean parseName(String signalName) { return signalName.matches("[a-zA-Z][a-zA-Z0-9_]*"); }
 }

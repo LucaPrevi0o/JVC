@@ -7,15 +7,17 @@ import jvc.runner.Expression;
 import jvc.runner.UnaryExpression;
 import jvc.signalType.Type;
 
+//parser class: decompiles .vhd source file and executes simulation
 public class Parser {
 
-    private class DeclarationLine {
+    private class DeclarationLine { //declaration line for new signals
 
-        private static ArrayList<String> names=new ArrayList<String>();
-        private static String type;
-        private static int lowerBound, upperBound;
-        private static boolean reverse;
+        private static ArrayList<String> names=new ArrayList<String>(); //signal name for every signal
+        private static String type; //signal type
+        private static int lowerBound, upperBound; //lower and upper index for vector signals
+        private static boolean reverse; //reversed signal (Y downto X)
 
+        //setup for vector signal declaration
         private static void vectorDeclaration(String[] line) {
     
             if (!isInteger(line[line.length-3])) {
