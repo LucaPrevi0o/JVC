@@ -76,5 +76,4 @@ This is the changelog list of every official release for this project.<br>
     * New separated components in simulation allow for indipendent compiling and simulation of the `.vhd` source file.
     * Simulation phase is now executed after every parsing step is completed on a list of simulation steps for every assignment.
 * Added comments.
-* Added custom `.bat` and `.sh` self-contained scripts for quicker building process of the project source.
 * Updated global command name (`Main` -> `VHDL`).

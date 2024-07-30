@@ -291,48 +291,52 @@ public class Parser {
                 System.exit(1);
             } else {
 
-                var signalLength=DeclarationLine.upperBound-DeclarationLine.lowerBound;
-                var data=new Type[signalLength];
-                var index=new int[signalLength];
-                var value=Type.getDefaultByTypeName(DeclarationLine.type);
+                var signalLength=DeclarationLine.upperBound-DeclarationLine.lowerBound; //calculate signal length
+                var data=new Type[signalLength]; //new data vector
+                var index=new int[signalLength]; //new index vector
+                var value=Type.getDefaultByTypeName(DeclarationLine.type); //get default data value
                 if ((signalLength==1 && DeclarationLine.type.matches("[a-z_]+_vector")) 
                     || (signalLength>1 && !DeclarationLine.type.matches("[a-z_]+_vector")) || value==null) {
 
+                    //check for incorrect vector data type declaration
                     System.err.println("Incorrect type declaration "+DeclarationLine.type+"("+signalLength+")");
                     System.exit(1);
                 }
 
-                for (var i=0; i<signalLength; i++) {
+                for (var i=0; i<signalLength; i++) { //setup new signal data and index vectors
                     
                     data[i]=value;
                     index[i]=(DeclarationLine.reverse ? DeclarationLine.upperBound-i : i+DeclarationLine.lowerBound);
                 }
 
-                signals.add(new Signal<>(signalName, data, index)); 
+                signals.add(new Signal<>(signalName, data, index)); //add new signal to signal list
             }
         }
+
+        DeclarationLine.reset(); //clear data from declaration line
     }
 
+    //execute global file parsing
     public static void parse(ArrayList<String[]> file) {
 
         for (var line: file) {
 
             if (line[0].equals("--")) {
                 
+                //comment line
                 System.out.print("\nFound comment line: ");
                 for (var l: line) System.out.print(l+" ");
                 System.out.println();
-                continue;
+                continue; //every comment line has no simulation meaning
             } else if (!line[line.length-1].equals(";")) {
 
+                //check for end of line
                 System.err.println("Missing end of line separator");
                 System.exit(1);
             } else if (line[0].equals("signal")) {
                 
-                DeclarationLine.declare(line);
-                declare();
-                DeclarationLine.reset();
-
+                DeclarationLine.declare(line); //setup declaration line
+                declare(); //execute declaration
                 System.out.println("\nFound signal declaration line - Signal list:");
                 for (var i=0; i<signals.size(); i++) System.out.println("- "+signals.get(i).display());
             } else {
@@ -347,10 +351,11 @@ public class Parser {
                     System.exit(1);
                 } else {
                     
-                    var step=new Runner(line);
+                    var step=new Runner(line); //add new simulation step
                     simulation.add(step);
                     System.out.println("\nFound assignment line");
 
+                    //remove every partial result signal
                     for (var i=signals.size()-1; i>=0; i--) if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
                 }
             }
