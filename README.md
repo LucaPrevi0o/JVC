@@ -66,7 +66,7 @@ This is the changelog list of every official release for this project.<br>
 * Added time delay support for consecutive assignments.
 * Fixed various bugs.
 
-### Alpha v1.3.1 (pre-release)
+### [Alpha v1.3.1](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.3.1-alpha) (pre-release)
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Updated simulation execution as different modules.
