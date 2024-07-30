@@ -15,4 +15,4 @@ This guide implements a list of supported VHDL features included in latest versi
 
 * It is possible to operate using `bit` and `std_logic` signal types, with inclusion for ` bit_vector ` and ` std_logic_vector ` type declaration for vector signals. Inclusion for libraries is not required, and most importantly not permitted too.
 
-* Every step of the simulation will dump information either about the list of declared signals, or the value of every signal.
+* Every step of the simulation will dump information either about the list of declared signals, or the value of every signal. Every assignment line is coupled with a set time delay, which is described as a floating point value and a time unit of either `ps`, `ns`, `us`, `ms` or `s`. The simulation process will automatically detect difference between multiples of different time units, and for this reason it is possible to use different time units in different assignment lines.
