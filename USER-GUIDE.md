@@ -1,5 +1,5 @@
 # JVC - Java VHDL Compiler
-## User Guide - Version: Alpha 1.3 (pre-release)
+## User Guide - Version: Alpha 1.3.1 (pre-release)
 This guide implements a list of supported VHDL features included in latest version. This will guide through **what to do** before analyzing and running VHDL projects with this tool.
 
 <hr> 
