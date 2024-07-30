@@ -105,6 +105,20 @@ public class Parser {
     
         //execute every expression in line (respecting operator priority)
         private static Signal<? extends Type> executeExpressions(String[] line) {
+    
+            if (isBinary(line[2])) { //direct assignment line
+    
+                if (line.length!=7) {
+    
+                    //check for correct syntax in assignment line
+                    System.err.println("Error in assignment line");
+                    System.exit(1);
+                }
+    
+                //executr assignment on signal specified at the start of line
+                simulation.add(new Runner(line));
+                return getByName(line[0]);
+            }
         
             //respect not > and/nand > xor > or/nor priority by parsing line multiple times and reducing every expression to a new signal
             for (var i=1; i<line.length-1; i++) if (line[i].equals("not")) {
@@ -188,20 +202,6 @@ public class Parser {
         //evaluate a line and get the result signal value
         public static Signal<? extends Type> evalExprLine(String[] line) {
     
-            if (isBinary(line[2])) { //direct assignment line
-    
-                if (line.length!=7) {
-    
-                    //check for correct syntax in assignment line
-                    System.err.println("Error in assignment line");
-                    System.exit(1);
-                }
-    
-                //executr assignment on signal specified at the start of line
-                signals.set(getIndexByName(line[0]), Signal.assign(getByName(line[0]), line[2]).setName(line[0]));
-                return getByName(line[0]);
-            }
-    
             //execute parsing of assignment expression otherwise
             for (var k=2; k<line.length && !line[k].equals("after"); k++) {
     
@@ -270,35 +270,38 @@ public class Parser {
         return -1;
     }
 
-    private static void declare(ArrayList<String> signalNames, String signalType, int lowerBound, int upperBound, boolean reverse) {
+    //execute declaration of every signal in line
+    private static void declare() {
 
-        for (var signalName: signalNames) {
+        for (var signalName: DeclarationLine.names) {
 
             if (isSignal(signalName)) {
 
+                //check for already defined signal
                 System.err.println("Duplicate signal name "+signalName);
                 System.exit(1);
             } else if (!signalName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
 
+                //check for signal name to be valid
                 System.err.println("Invalid signal name");
                 System.exit(1);
             } else {
 
-                var signalLength=upperBound-lowerBound;
+                var signalLength=DeclarationLine.upperBound-DeclarationLine.lowerBound;
                 var data=new Type[signalLength];
                 var index=new int[signalLength];
-                var value=Type.getDefaultByTypeName(signalType);
-                if ((signalLength==1 && signalType.matches("[a-z_]+_vector")) 
-                    || (signalLength>1 && !signalType.matches("[a-z_]+_vector")) || value==null) {
+                var value=Type.getDefaultByTypeName(DeclarationLine.type);
+                if ((signalLength==1 && DeclarationLine.type.matches("[a-z_]+_vector")) 
+                    || (signalLength>1 && !DeclarationLine.type.matches("[a-z_]+_vector")) || value==null) {
 
-                    System.err.println("Incorrect type declaration "+signalType+"("+signalLength+")");
+                    System.err.println("Incorrect type declaration "+DeclarationLine.type+"("+signalLength+")");
                     System.exit(1);
                 }
 
                 for (var i=0; i<signalLength; i++) {
                     
                     data[i]=value;
-                    index[i]=(reverse ? upperBound-i : i+lowerBound);
+                    index[i]=(DeclarationLine.reverse ? DeclarationLine.upperBound-i : i+DeclarationLine.lowerBound);
                 }
 
                 signals.add(new Signal<>(signalName, data, index)); 
@@ -323,7 +326,7 @@ public class Parser {
             } else if (line[0].equals("signal")) {
                 
                 DeclarationLine.declare(line);
-                declare(DeclarationLine.names, DeclarationLine.type, DeclarationLine.lowerBound, DeclarationLine.upperBound, DeclarationLine.reverse);
+                declare();
                 DeclarationLine.reset();
 
                 System.out.println("\nFound signal declaration line - Signal list:");

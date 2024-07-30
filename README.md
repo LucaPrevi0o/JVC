@@ -22,14 +22,14 @@ This allows you to parse `.vhd` files and extract a full simulation of the proje
     * Every `.class` file is contained in a global folder **java**. You will need to refer this folder as your global project folder. Otherwise, you can extract its content (specified above) in a folder of your choice.
 
 * Open the terminal in the global project folder you extracted the project into, and type this command to run the VHDL simulation:
-``` java Main <filename> ```
+``` java VHDL <filename> ```
 You should get the simulation dump in your terminal, if everything worked successfully. You should get otherwise a brief description of the error that the simulation encountered.
 
 <hr>
 
 ## Changelog
 This is the changelog list of every official release for this project.<br>
-* Latest release: ***Alpha v1.3 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
+* Latest release: ***Alpha v1.3.1 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
 
 ### [Alpha v1.0](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.0-alpha) (pre-release)
 >[!WARNING]
@@ -72,6 +72,9 @@ This is the changelog list of every official release for this project.<br>
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 * Updated simulation execution as different modules.
+* Updated direct assignment simulation.
     * New separated components in simulation allow for indipendent compiling and simulation of the `.vhd` source file.
+    * Simulation phase is now executed after every parsing step is completed on a list of simulation steps for every assignment.
 * Added comments.
 * Added custom `.bat` and `.sh` self-contained scripts for quicker building process of the project source.
+* Updated global command name (`Main` -> `VHDL`).

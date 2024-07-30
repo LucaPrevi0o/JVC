@@ -50,7 +50,6 @@ public class Runner {
         for (var step: simulation) {
 
             var unit="ps";
-            System.out.println("current delay: "+step.delay);
             globalTime+=step.delay;
             var simTime=updateDelay(globalTime, unit);
             var currentTime=(float)simTime[0];
