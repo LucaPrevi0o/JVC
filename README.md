@@ -18,12 +18,10 @@ This allows you to parse `.vhd` files and extract a full simulation of the proje
     * You can install latest version of Oracle JDK [here](https://www.oracle.com/it/java/technologies/downloads/). Download the installer for the operating system of your choice, then launch the installer and follow the instructions to install the JDK.
     * When completed the installation process, you can check your JDK version by typing ` java --version ` in your terminal. If the installation was successful, you should see details about your runtime environment.
 
-* Once the JVM installation is complete, you can download the latest version for the JVC project. The `.zip` package should contain [*this*](./README.md) file, the [license](./LICENSE), the [user guide](./USER-GUIDE.md), the **folder** containing all the `.class` dependencies, and the *Main* class. Download and extract the project in your device.
+* Once the JVM installation is complete, you can download the latest version for the JVC project. The `.zip` package should contain [*this*](./README.md) file, the [license](./LICENSE), the [user guide](./USER-GUIDE.md), the [**folder**](./java/jvc/) containing all the `.class` dependencies, and the [*VHDL main class*](./java/VHDL.class). A [`.vhd`](./run.vhd) example file should also be present in the folder. Download and extract the project in your device.
     * Every `.class` file is contained in a global folder **java**. You will need to refer this folder as your global project folder. Otherwise, you can extract its content (specified above) in a folder of your choice.
 
-* Open the terminal in the global project folder you extracted the project into, and type this command to run the VHDL simulation:
-``` java VHDL <filename> ```
-You should get the simulation dump in your terminal, if everything worked successfully. You should get otherwise a brief description of the error that the simulation encountered.
+* Open the terminal in the global project folder you extracted the project into, and type the command ``` java VHDL <filename> ``` to run the VHDL simulation. You should get the simulation dump in your terminal, if everything worked successfully. You should get otherwise a brief description of the error that the simulation encountered.
 
 <hr>
 
