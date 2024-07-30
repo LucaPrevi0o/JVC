@@ -2,9 +2,10 @@ package jvc.parser;
 
 import java.util.ArrayList;
 import jvc.Signal;
-import jvc.expression.BinaryExpression;
 import jvc.expression.Expression;
-import jvc.expression.UnaryExpression;
+import jvc.expression.expressions.AssignmentExpression;
+import jvc.expression.expressions.BinaryExpression;
+import jvc.expression.expressions.UnaryExpression;
 import jvc.runner.Runner;
 import jvc.signalType.Type;
 
@@ -116,8 +117,11 @@ public class Parser {
                 }
     
                 //executr assignment on signal specified at the start of line
-                simulation.add(new Runner(line));
-                return getByName(line[0]);
+                var a=getByName(line[0]); //get signal to operate with
+                var signal=new AssignmentExpression(a, line[2]).execute(); //execute assignment
+                signals.add(signal); //add result signal to signal list
+    
+                return signals.getLast(); //return last signal as result for expression execution
             }
         
             //respect not > and/nand > xor > or/nor priority by parsing line multiple times and reducing every expression to a new signal

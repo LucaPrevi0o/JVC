@@ -1,7 +1,8 @@
-package jvc.expression;
+package jvc.expression.expressions;
 
 import java.util.ArrayList;
 import jvc.Signal;
+import jvc.expression.Expression;
 import jvc.signalType.Type;
 
 //assignment expression for binary operators (and/nand, or/nor, xor)
