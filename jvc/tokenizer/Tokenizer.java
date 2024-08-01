@@ -8,7 +8,7 @@ public class Tokenizer {
     public static ArrayList<String[]> getGlobalTokens() { return globalTokens; }
     public static String[] getLine(int index) { return globalTokens.get(index); }
 
-    public static void tokenize(String fileName) { //tokenizer (needs update for complex syntax handling)
+    public static ArrayList<String[]> generate(String fileName) { //tokenizer (needs update for complex syntax handling)
 
         try (var reader=new BufferedReader(new FileReader(fileName))) {
 
@@ -25,6 +25,8 @@ public class Tokenizer {
             e.printStackTrace();
             System.exit(1);
         }
+
+        return globalTokens;
     }
 
     //check for a signal name to be valid

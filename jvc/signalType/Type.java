@@ -1,9 +1,10 @@
 package jvc.signalType;
 
+import java.io.Serializable;
 import jvc.signalType.types.logic.Bit;
 import jvc.signalType.types.logic.StdLogic;
 
-public interface Type { //every data type inherits this properties
+public interface Type extends Serializable { //every data type inherits this properties
 
     //execution of an operation to generate data
     public static Type[] execute(Type[] a, Type[] b, int[] indexes, String opName) {

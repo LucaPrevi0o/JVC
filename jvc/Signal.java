@@ -1,9 +1,10 @@
 package jvc;
 
+import java.io.Serializable;
 import jvc.parser.Parser;
 import jvc.signalType.Type;
 
-public class Signal<T extends Type> { //signal 
+public class Signal<T extends Type> implements Serializable { //signal 
     
     private String name; //signal name
     private T[] value; //logical value (can be Bit, StdLogic...)

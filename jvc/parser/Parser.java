@@ -2,11 +2,10 @@ package jvc.parser;
 
 import java.util.ArrayList;
 import jvc.Signal;
-import jvc.expression.Expression;
 import jvc.expression.expressions.AssignmentExpression;
 import jvc.expression.expressions.BinaryExpression;
 import jvc.expression.expressions.UnaryExpression;
-import jvc.runner.Runner;
+import jvc.runner.VHDLSimulationStep;
 import jvc.signalType.Type;
 
 //parser class: decompiles .vhd source file and executes simulation
@@ -230,12 +229,10 @@ public class Parser {
     
     //list of declared signals, runnable expressions and simulation steps
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
-    private static ArrayList<Expression> expressions=new ArrayList<Expression>();
-    private static ArrayList<Runner> simulation=new ArrayList<Runner>();
+    private static ArrayList<VHDLSimulationStep> simulation=new ArrayList<VHDLSimulationStep>();
 
     public static ArrayList<Signal<? extends Type>> getSignals() { return signals; }
-    public static ArrayList<Expression> getExpressions() { return expressions; }
-    public static ArrayList<Runner> getSimulation() { return simulation; }
+    public static ArrayList<VHDLSimulationStep> getSimulation() { return simulation; }
 
     //check for a binary assignment string
     private static boolean isBinary(String sequence) { return sequence.matches("\"[01]+\""); }
@@ -271,6 +268,12 @@ public class Parser {
     public static int getIndexByName(String name) { //return signal index in declaration list by name
 
         for (var i=0; i<signals.size(); i++) if (signals.get(i).getName().equals(name)) return i;
+        return -1;
+    }
+
+    public static int getIndexByName(String name, ArrayList<Signal<? extends Type>> s) { //return signal index in declaration list by name
+
+        for (var i=0; i<s.size(); i++) if (s.get(i).getName().equals(name)) return i;
         return -1;
     }
 
@@ -321,14 +324,8 @@ public class Parser {
 
         for (var line: file) {
 
-            if (line[0].equals("--")) {
-                
-                //comment line
-                System.out.print("\nFound comment line: ");
-                for (var l: line) System.out.print(l+" ");
-                System.out.println();
-                continue; //every comment line has no simulation meaning
-            } else if (!line[line.length-1].equals(";")) {
+            if (line[0].equals("--")) continue; //every comment line has no simulation meaning
+            else if (!line[line.length-1].equals(";")) {
 
                 //check for end of line
                 System.err.println("Missing end of line separator");
@@ -337,27 +334,21 @@ public class Parser {
                 
                 DeclarationLine.declare(line); //setup declaration line
                 declare(); //execute declaration
-                System.out.println("\nFound signal declaration line - Signal list:");
                 for (var i=0; i<signals.size(); i++) System.out.println("- "+signals.get(i).display());
+            } else if (!isSignal(line[0]) || !line[1].equals("<=")) {
+
+                //check for assignment delay after every assignment
+                System.err.println("Missing assignment operator");
+                System.exit(1);
+            } else if ((!isInteger(line[line.length-3]) && !isFloat(line[line.length-3])) || !line[line.length-4].equals("after")) {
+    
+                System.err.println("Missing assignment delay");
+                System.exit(1);
             } else {
-
-                if (!isSignal(line[0]) || !line[1].equals("<=")) {
-
-                    System.err.println("Missing assignment operator");
-                    System.exit(1);
-                } else if ((!isInteger(line[line.length-3]) && !isFloat(line[line.length-3])) || !line[line.length-4].equals("after")) {
-        
-                    System.err.println("Missing assignment delay");
-                    System.exit(1);
-                } else {
-                    
-                    var step=new Runner(line); //add new simulation step
-                    simulation.add(step);
-                    System.out.println("\nFound assignment line");
-
-                    //remove every partial result signal
-                    for (var i=signals.size()-1; i>=0; i--) if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
-                }
+                
+                simulation.add(new VHDLSimulationStep(line)); //add new simulation step
+                for (var i=signals.size()-1; i>=0; i--) 
+                    if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
             }
         }
     }
