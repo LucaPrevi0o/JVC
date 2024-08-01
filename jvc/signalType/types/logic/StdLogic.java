@@ -17,5 +17,5 @@ public final class StdLogic implements Type {
             (this.equals(StdLogic.F) ? "0" :
             (this.equals(StdLogic.X) ? "X" : 
             (this.equals(StdLogic.U) ? "U" : null)));
-        }
+    }
 }

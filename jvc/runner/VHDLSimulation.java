@@ -48,6 +48,7 @@ public class VHDLSimulation {
             simOos.close();
 
             for (var step: simulation) {
+                
                 var unit="ps";
                 time+=step.getDelay();
                 var simTime=updateDelay(time, unit);
