@@ -1,5 +1,5 @@
 # JVC - Java VHDL Compiler
-## Download version: Alpha v1.3.1 (pre-release)
+## Download version: Alpha v1.4 (pre-release)
 
 ### Project details
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
