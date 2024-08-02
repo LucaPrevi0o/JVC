@@ -38,7 +38,7 @@ public class JVCSimulationStep implements Serializable {
     public void stepSimulation(float delay, String unit, ArrayList<Signal<? extends Type>> signals) {
         
         signals.set(Parser.getIndexByName(this.destSignalName, signals), this.signal.setName(this.destSignalName));
-        System.out.println("\nTime: "+this.delay+" "+unit+" - Signals:");
+        System.out.println("\nTime: "+delay+" "+unit+" - Signals:");
         for (var s: signals) System.out.println(s);
     }
 

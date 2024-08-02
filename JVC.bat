@@ -37,21 +37,21 @@ if [%1] == [] (
     exit
 ) else if [%2] == [-r] (
     
-    java -cp ./java jvc/runner/JVCSimulator %1
+    java -cp ./java JVCSimulator %1
     exit
 ) else if [%2] == [--run] (
     
-    java -cp ./java jvc/runner/JVCSimulator %1
+    java -cp ./java JVCSimulator %1
     exit
 ) else if [%2] == [-f] (
 
     java -cp .\java\ JVCCompiler %1
-    java -cp ./java jvc/runner/JVCSimulator %1
+    java -cp ./java JVCSimulator %1
     exit
 ) else if [%2] == [--full] (
 
     java -cp .\java\ JVCCompiler %1
-    java -cp ./java jvc/runner/JVCSimulator %1
+    java -cp ./java JVCSimulator %1
     exit
 ) else if [%2] == [-h] (
 

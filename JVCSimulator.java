@@ -1,10 +1,12 @@
-package jvc.runner;
+
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+
 import jvc.Signal;
+import jvc.runner.JVCSimulationStep;
 import jvc.signalType.Type;
 import jvc.signalType.types.logic.Bit;
 import jvc.signalType.types.logic.StdLogic;
@@ -27,7 +29,6 @@ public class JVCSimulator {
             else if (unit.equals("us")) unit="ms";
             else if (unit.equals("ms")) unit="s";
         } 
-
         return new Object[]{delay, unit};
     } 
 

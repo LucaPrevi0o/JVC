@@ -28,13 +28,13 @@ then
     elif test $2 = "-r" -o $2 = "--run"
     then
         
-        java -cp ./java jvc/runner/JVCSimulator $1
+        java -cp ./java JVCSimulator $1
         exit
     elif test $2 = "-r" -o $2 = "--run"
     then
 
         java -cp .\java\ JVCCompiler $1
-        java -cp ./java jvc/runner/JVCSimulator $1
+        java -cp ./java JVCSimulator $1
         exit
     else
 
