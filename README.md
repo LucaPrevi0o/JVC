@@ -27,7 +27,7 @@ This allows you to parse `.vhd` files and extract a full simulation of the proje
 <hr>
 
 ## Changelog
-This is the changelog list of every official release for this project. Download release: ***Alpha v1.3.1 (pre-release)***
+This is the changelog list of every official release for this project. Download release: ***Alpha v1.4 (pre-release)***
 >[!WARNING]
 > This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
 
@@ -61,3 +61,8 @@ This is the changelog list of every official release for this project. Download 
     * Simulation phase is now executed after every parsing step is completed on a list of simulation steps for every assignment.
 * Added comments.
 * Updated global command name (`Main` -> `VHDL`).
+
+### Alpha v1.4 (pre-release)
+* Updated global command name (`VHDL` -> `JVC`).
+* Added integration support for external `.vhsim` dump files and `.vhdata` signal data files for simulation.
+* Added support for individual compiling, data extraction and simulation tasks.
