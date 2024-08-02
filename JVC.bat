@@ -1,11 +1,12 @@
 @ echo off
 if [%1] == [] (
     
-    echo Usage: %0 [-h] ^<filename^> ^<option^>
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
     exit
 ) else if [%1] == [-h] (
 
     echo JVC - Java VHDL Compiler
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
     echo Options:
     echo -c ^(--compile^): compiles the .vhd file as a runnable .vhsim simulation
     echo -r ^(--run^): runs the VHDL simulation
@@ -14,8 +15,8 @@ if [%1] == [] (
     exit
 ) else if [%1] == [--help] (
 
-6f
     echo JVC - Java VHDL Compiler
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
     echo Options:
     echo -c ^(--compile^): compiles the .vhd file as a runnable .vhsim simulation
     echo -r ^(--run^): runs the VHDL simulation
@@ -24,7 +25,7 @@ if [%1] == [] (
     exit
 ) else if [%2] == [] (
     
-    echo Usage: %0 [-h] ^<filename^> ^<option^>
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
     exit
 ) else if [%2] == [-c] (
     
@@ -51,6 +52,26 @@ if [%1] == [] (
 
     java -cp .\java\ JVCCompiler %1
     java -cp ./java jvc/runner/JVCSimulator %1
+    exit
+) else if [%2] == [-h] (
+
+    echo JVC - Java VHDL Compiler
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
+    echo Options:
+    echo -c ^(--compile^): compiles the .vhd file as a runnable .vhsim simulation
+    echo -r ^(--run^): runs the VHDL simulation
+    echo -f ^(--full^): compiles and runs a full VHDL simulation from a source file
+    echo -h ^(--help^): displays this help guide
+    exit
+) else if [%2] == [--help] (
+
+    echo JVC - Java VHDL Compiler
+    echo Usage: %0 ^[-h ^| ^[^<filename^> ^<option^>^]^]
+    echo Options:
+    echo -c ^(--compile^): compiles the .vhd file as a runnable .vhsim simulation
+    echo -r ^(--run^): runs the VHDL simulation
+    echo -f ^(--full^): compiles and runs a full VHDL simulation from a source file
+    echo -h ^(--help^): displays this help guide
     exit
 ) else (
 

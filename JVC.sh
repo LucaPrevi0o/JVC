@@ -9,6 +9,7 @@ then
     else
 
         echo JVC - Java VHDL Compiler
+        echo "Usage: $0 [-h | [<filename> <option>]]"
         echo Options:
         echo "-c (--compile): compiles the .vhd file as a runnable .vhsim simulation"
         echo "-r (--run): runs the VHDL simulation"
