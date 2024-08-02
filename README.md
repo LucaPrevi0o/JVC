@@ -23,7 +23,7 @@ This allows you to parse `.vhd` files and extract a full simulation of the proje
     * Both the `.bat` and the `.sh` scripts (for Windows-based and Unix-based devices respectively) are simple command-line tools to quickly run the Java dependencies. Run them in the command terminal to quickly extract the simulation data from your `.vhd` source files.
     * It is also possible to run them manually, using the ``` java <command> ``` standard tools provided by the JVM. In this case, remember that every Java dependency file is contained inside the [**java**](./java/) global folder.
 
-* Open the terminal in the global project folder you extracted the project into, and run your JVC script file using the command line. You can either compile a `.vhd` source file into a `.vhsim`/`.vhdata` simulation dump, execute the VHDL simulation on a compiled source, or run a full execution directly from the source file.
+* Open the terminal in the global project folder you extracted the project into, and run your JVC script file using the command line. You can either compile a `.vhd` source file into a `.vhsim`/`.vhdata` simulation dump, execute the VHDL simulation (or extract signal data) on a compiled source, or run a full execution directly from the source file.
 
 <hr>
 
