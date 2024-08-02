@@ -13,23 +13,32 @@ public class VHDLSimulationStep implements Serializable {
     private Signal<? extends Type> signal;
 
     public float getDelay() { return delay; }
+    public String getDestName() { return destSignalName; }
+    public Signal<? extends Type> getSignal() { return signal; }
 
     public VHDLSimulationStep(String[] line) {
 
-        destSignalName=line[0];
-        signal=Parser.AssignmentLine.evalExprLine(line).clone();
-        delay=Float.parseFloat(line[line.length-3]);
+        this.destSignalName=line[0];
+        this.signal=Parser.AssignmentLine.evalExprLine(line).clone();
+        this.delay=Float.parseFloat(line[line.length-3]);
 
-        if (line[line.length-2].equals("ns")) delay*=1000;
-        else if (line[line.length-2].equals("us")) delay*=1000*1000;
-        else if (line[line.length-2].equals("ms")) delay*=1000*1000*1000;
-        else if (line[line.length-2].equals("s")) delay*=1000*1000*1000*1000;
+        if (line[line.length-2].equals("ns")) this.delay*=1000;
+        else if (line[line.length-2].equals("us")) this.delay*=1000*1000;
+        else if (line[line.length-2].equals("ms")) this.delay*=1000*1000*1000;
+        else if (line[line.length-2].equals("s")) this.delay*=1000*1000*1000*1000;
+    }
+
+    public VHDLSimulationStep(Signal<? extends Type> signal, String destSignalName, float delay) {
+
+        this.signal=signal;
+        this.destSignalName=destSignalName;
+        this.delay=delay;
     }
 
     public void stepSimulation(float delay, String unit, ArrayList<Signal<? extends Type>> signals) {
         
-        signals.set(Parser.getIndexByName(destSignalName, signals), signal.setName(destSignalName));
-        System.out.println("\nTime: "+delay+" "+unit+" - Signals:");
+        signals.set(Parser.getIndexByName(this.destSignalName, signals), this.signal.setName(this.destSignalName));
+        System.out.println("\nTime: "+this.delay+" "+unit+" - Signals:");
         for (var s: signals) System.out.println(s);
     }
 

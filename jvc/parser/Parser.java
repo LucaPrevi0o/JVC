@@ -334,7 +334,6 @@ public class Parser {
                 
                 DeclarationLine.declare(line); //setup declaration line
                 declare(); //execute declaration
-                for (var i=0; i<signals.size(); i++) System.out.println("- "+signals.get(i).display());
             } else if (!isSignal(line[0]) || !line[1].equals("<=")) {
 
                 //check for assignment delay after every assignment
