@@ -4,13 +4,13 @@ import java.io.ObjectOutputStream;
 
 import jvc.Signal;
 import jvc.parser.Parser;
-import jvc.runner.VHDLSimulationStep;
+import jvc.runner.JVCSimulationStep;
 import jvc.signalType.Type;
 import jvc.signalType.types.logic.Bit;
 import jvc.signalType.types.logic.StdLogic;
 import jvc.tokenizer.Tokenizer;
 
-public class VHDL {
+public class JVCCompiler {
 
     private static void doWrite(Type d, ObjectOutputStream oos) {
 
@@ -39,7 +39,7 @@ public class VHDL {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private static void writeStep(VHDLSimulationStep step, ObjectOutputStream oos) {
+    private static void writeStep(JVCSimulationStep step, ObjectOutputStream oos) {
 
         try {
             
@@ -77,7 +77,7 @@ public class VHDL {
 
             var simulationData=Parser.getSimulation();
             for (var step: simulationData) writeStep(step, simOos);
-            
+
             dataOos.flush();
             dataOos.close();
             simOos.flush();

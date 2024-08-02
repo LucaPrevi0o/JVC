@@ -9,10 +9,10 @@ import jvc.signalType.Type;
 import jvc.signalType.types.logic.Bit;
 import jvc.signalType.types.logic.StdLogic;
 
-public class VHDLSimulation {
+public class JVCSimulator {
 
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
-    private static ArrayList<VHDLSimulationStep> simulation=new ArrayList<VHDLSimulationStep>();
+    private static ArrayList<JVCSimulationStep> simulation=new ArrayList<JVCSimulationStep>();
     private static float time=0f;
 
     public static float getSimulationTime() { return time; }
@@ -65,14 +65,14 @@ public class VHDLSimulation {
         }
     }
 
-    private static VHDLSimulationStep readStep(ObjectInputStream oos) {
+    private static JVCSimulationStep readStep(ObjectInputStream oos) {
 
         try {
 
             var signal=readSignal(oos);
             var destName=(String)oos.readObject();
             var delay=(float)oos.readObject();
-            return new VHDLSimulationStep(signal, destName, delay);
+            return new JVCSimulationStep(signal, destName, delay);
         } catch (Exception e) {
 
             e.printStackTrace();

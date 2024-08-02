@@ -6,7 +6,7 @@ import jvc.Signal;
 import jvc.parser.Parser;
 import jvc.signalType.Type;
 
-public class VHDLSimulationStep implements Serializable {
+public class JVCSimulationStep implements Serializable {
     
     private float delay;
     private String destSignalName;
@@ -16,7 +16,7 @@ public class VHDLSimulationStep implements Serializable {
     public String getDestName() { return destSignalName; }
     public Signal<? extends Type> getSignal() { return signal; }
 
-    public VHDLSimulationStep(String[] line) {
+    public JVCSimulationStep(String[] line) {
 
         this.destSignalName=line[0];
         this.signal=Parser.AssignmentLine.evalExprLine(line).clone();
@@ -28,7 +28,7 @@ public class VHDLSimulationStep implements Serializable {
         else if (line[line.length-2].equals("s")) this.delay*=1000*1000*1000*1000;
     }
 
-    public VHDLSimulationStep(Signal<? extends Type> signal, String destSignalName, float delay) {
+    public JVCSimulationStep(Signal<? extends Type> signal, String destSignalName, float delay) {
 
         this.signal=signal;
         this.destSignalName=destSignalName;

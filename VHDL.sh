@@ -1,10 +1,7 @@
-if test $# -ne 1
+if test $# -eq 1 -a $1 != "-h"
 then
-    echo "Usage: $0 <filename>"
+    echo "Usage: $0 [-h] <filename> <options>"
     exit
 fi
 
-rm -r java/*
-javac -d java VHDL.java
-reset
-java -cp java VHDL $1
+echo test

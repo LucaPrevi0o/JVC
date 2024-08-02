@@ -5,7 +5,7 @@ import jvc.Signal;
 import jvc.expression.expressions.AssignmentExpression;
 import jvc.expression.expressions.BinaryExpression;
 import jvc.expression.expressions.UnaryExpression;
-import jvc.runner.VHDLSimulationStep;
+import jvc.runner.JVCSimulationStep;
 import jvc.signalType.Type;
 
 //parser class: decompiles .vhd source file and executes simulation
@@ -229,10 +229,10 @@ public class Parser {
     
     //list of declared signals, runnable expressions and simulation steps
     private static ArrayList<Signal<? extends Type>> signals=new ArrayList<Signal<? extends Type>>();
-    private static ArrayList<VHDLSimulationStep> simulation=new ArrayList<VHDLSimulationStep>();
+    private static ArrayList<JVCSimulationStep> simulation=new ArrayList<JVCSimulationStep>();
 
     public static ArrayList<Signal<? extends Type>> getSignals() { return signals; }
-    public static ArrayList<VHDLSimulationStep> getSimulation() { return simulation; }
+    public static ArrayList<JVCSimulationStep> getSimulation() { return simulation; }
 
     //check for a binary assignment string
     private static boolean isBinary(String sequence) { return sequence.matches("\"[01]+\""); }
@@ -345,7 +345,7 @@ public class Parser {
                 System.exit(1);
             } else {
                 
-                simulation.add(new VHDLSimulationStep(line)); //add new simulation step
+                simulation.add(new JVCSimulationStep(line)); //add new simulation step
                 for (var i=signals.size()-1; i>=0; i--) 
                     if (signals.get(i).getName().matches("[0-9]+_newS")) signals.remove(signals.get(i));
             }
