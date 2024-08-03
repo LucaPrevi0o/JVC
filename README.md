@@ -1,5 +1,5 @@
 # JVC - Java VHDL Compiler
-## Latest version: Alpha v1.3.1 (pre-release)
+## Latest version: Alpha v1.4 (pre-release)
 
 ### Project details
 JVC (Java VHDL Compiler) is a free, open-source, cross-platform development tool for VHDL language.<br>
@@ -18,16 +18,18 @@ This allows you to parse `.vhd` files and extract a full simulation of the proje
     * You can install latest version of Oracle JDK [here](https://www.oracle.com/it/java/technologies/downloads/). Download the installer for the operating system of your choice, then launch the installer and follow the instructions to install the JDK.
     * When completed the installation process, you can check your JDK version by typing ` java --version ` in your terminal. If the installation was successful, you should see details about your runtime environment.
 
-* Once the JVM installation is complete, you can download the latest version for the JVC project. The `.zip` package should contain [*this*](./README.md) file, the [license](./LICENSE), the [user guide](./USER-GUIDE.md), the **folder** containing all the `.class` dependencies, and the *Main* class. A `.vhd` example file should also be present in the folder. Download and extract the project in your device.
-    * Every `.class` file is contained in a global folder **java**. You will need to refer this folder as your global project folder. Otherwise, you can extract its content (specified above) in a folder of your choice.
+* Once the JVM installation is complete, you can download the latest version for the JVC project. The `.zip` package should contain [*this*](./README.md) file, the [license](./LICENSE), the [user guide](./USER-GUIDE.md) and the [**folder**](./java/jvc/) containing all the `.class` dependencies. A [`.vhd`](./run.vhd) example file should also be present in the folder, alongside a [**sim**](./sim/) folder containing the simulation data. Download and extract the project in your device.
+* Download the JVC script file for your device architecture, and extract it in the same folder.
+    * Both the `.bat` and the `.sh` scripts (for Windows-based and Unix-based devices respectively) are simple command-line tools to quickly run the Java dependencies. Run them in the command terminal to quickly extract the simulation data from your `.vhd` source files.
+    * It is also possible to run them manually, using the ``` java <command> ``` standard tools provided by the JVM. In this case, remember that every Java dependency file is contained inside the [**java**](./java/) global folder.
 
-* Open the terminal in the global project folder you extracted the project into, and type the command ``` java VHDL <filename> ``` to run the VHDL simulation. You should get the simulation dump in your terminal, if everything worked successfully. You should get otherwise a brief description of the error that the simulation encountered.
+* Open the terminal in the global project folder you extracted the project into, and run your JVC script file using the command line. You can either compile a `.vhd` source file into a `.vhsim`/`.vhdata` simulation dump, execute the VHDL simulation (or extract signal data) on a compiled source, or run a full execution directly from the source file.
 
 <hr>
 
 ## Changelog
 This is the changelog list of every official release for this project.<br>
-* Latest release: ***Alpha v1.3.1 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
+* Latest release: ***Alpha v1.4 (pre-release)***. Click [*here*](https://github.com/LucaPrevi0o/JVC/releases) to see the full list of official releases.
 
 ### [Alpha v1.0](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.0-alpha) (pre-release)
 >[!WARNING]
@@ -75,3 +77,10 @@ This is the changelog list of every official release for this project.<br>
     * Simulation phase is now executed after every parsing step is completed on a list of simulation steps for every assignment.
 * Added comments.
 * Updated global command name (`Main` -> `VHDL`).
+
+### [Alpha v1.4](https://github.com/LucaPrevi0o/JVC/releases/tag/v1.4-alpha) (pre-release)
+>[!WARNING]
+> This pre-release does not support full VHDL language yet. This version is still *work in progress*, thus many features still need to be fully implemented. See the [User Guide](./USER-GUIDE.md) for **detailed instructions** on features available.
+* Updated global command name (`VHDL` -> `JVC`).
+* Added integration support for external `.vhsim` dump files and `.vhdata` signal data files for simulation.
+* Added support for individual compiling, data extraction and simulation tasks.
